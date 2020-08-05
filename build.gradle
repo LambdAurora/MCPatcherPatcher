@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = project.maven_group
+version = "${project.version}"
+archivesBaseName = project.archives_base_name
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "AperLambda"
+        url = 'https://aperlambda.github.io/maven'
+    }
+}
+
+dependencies {
+    api("org.aperlambda:lambdajcommon:1.8.0") {
+        exclude group: 'com.google.code.gson'
+        exclude group: 'com.google.guava'
+    }
+
+    api("com.google.code.gson:gson:2.8.6")
+}
