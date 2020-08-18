@@ -1,0 +1,96 @@
+import net.fabricmc.loom.task.RemapJarTask
+
+plugins {
+    id 'fabric-loom' version '0.4-SNAPSHOT'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+version = "${project.version}+${project.minecraft_version}"
+archivesBaseName = project.archives_base_name + "-fabric"
+
+minecraft {
+}
+
+repositories {
+    maven {
+        name = 'CottonMC'
+        url = 'http://server.bbkr.space:8081/artifactory/libs-snapshot'
+    }
+}
+
+configurations {
+    shadow
+    shadowInternal
+    api.extendsFrom shadow
+}
+
+dependencies {
+    // To change the versions see the gradle.properties file.
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation "io.github.prospector:modmenu:${project.modmenu_version}"
+
+    api project(":base")
+    shadow("org.aperlambda:lambdajcommon:1.8.1") {
+        // Minecraft already has all that google crap.
+        exclude group: 'com.google.code.gson'
+        exclude group: 'com.google.guava'
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "fabric.mod.json"
+        expand "version": project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "fabric.mod.json"
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    withSourcesJar()
+}
+
+jar {
+    from "../LICENSE"
+}
+
+task shadowJar(type: Jar) {
+    archiveClassifier.set("dev")
+
+    from sourceSets.main.output
+
+    from {
+        configurations.shadowInternal.filter {
+            it.getName().contains("mcpatcherpatcher")
+        }.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    from {
+        configurations.shadow.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+task shadowRemapJar(type: RemapJarTask) {
+    dependsOn shadowJar
+
+    input = file("${project.buildDir}/libs/$archivesBaseName-$version-dev.jar")
+    archiveName = "${archivesBaseName}-${version}.jar"
+    addNestedDependencies = true
+}

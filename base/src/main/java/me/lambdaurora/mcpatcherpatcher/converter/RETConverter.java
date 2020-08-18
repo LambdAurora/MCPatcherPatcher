@@ -62,7 +62,7 @@ public class RETConverter extends Converter
         this.input.getNamespaces(ResourceType.ASSETS).stream()
                 .map(namespace -> new Identifier(namespace, CETConverter.CET_PARENT))
                 .forEach(parent -> this.input.searchIn(ResourceType.ASSETS, parent)
-                        .filter(id -> id.getName().endsWith(".png"))
+                        .filter(id -> id.getName().endsWith(".png") && !id.getName().endsWith("-.png"))
                         .forEach(id -> {
                             Matcher matcher = RET_PATTERN.matcher(id.getName());
                             if (matcher.find()) {
@@ -121,19 +121,7 @@ public class RETConverter extends Converter
 
             jsonTextures.add(vmtTexId.toString());
 
-            InputStream in = this.input.getInputStream(ResourceType.ASSETS, entry.ofId);
-            if (in == null) {
-                return;
-            }
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                in.transferTo(out);
-                this.output.put(ResourceType.ASSETS, vmtTexId, out.toByteArray());
-                out.close();
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.input.rename(this.output, ResourceType.ASSETS, entry.ofId, vmtTexId);
         });
 
         if (textures.size() == 1) {

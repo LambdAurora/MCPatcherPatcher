@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -109,7 +110,7 @@ public class FileAccessor implements ResourceAccessor
     }
 
     @Override
-    public @NotNull List<String> getNamespaces(@NotNull ResourceType type)
+    public @NotNull Collection<String> getNamespaces(@NotNull ResourceType type)
     {
         return Arrays.stream(new File(directory, type.getName()).listFiles()).filter(File::isDirectory).map(File::getName).collect(Collectors.toList());
     }

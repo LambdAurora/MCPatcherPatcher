@@ -25,7 +25,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -85,7 +87,7 @@ public interface ResourceAccessor
      * @param type The resource type.
      * @return A list of namespaces.
      */
-    @NotNull List<String> getNamespaces(@NotNull ResourceType type);
+    @NotNull Collection<String> getNamespaces(@NotNull ResourceType type);
 
     /**
      * Puts the data in the specified resource.
@@ -127,12 +129,26 @@ public interface ResourceAccessor
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            in.transferTo(out);
+            transferTo(in, out);
             outAccessor.put(type, identifier, out.toByteArray());
             out.close();
             in.close();
         } catch (IOException e) {
         }
+    }
+
+    static long transferTo(@NotNull InputStream in, @NotNull OutputStream out) throws IOException
+    {
+        Objects.requireNonNull(in, "in");
+        Objects.requireNonNull(out, "out");
+        long transferred = 0L;
+
+        int read;
+        for (byte[] buffer = new byte[8192]; (read = in.read(buffer, 0, 8192)) >= 0; transferred += (long) read) {
+            out.write(buffer, 0, read);
+        }
+
+        return transferred;
     }
 
     /**
@@ -150,11 +166,29 @@ public interface ResourceAccessor
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            in.transferTo(out);
+            transferTo(in, out);
             outAccessor.put(path, out.toByteArray());
             out.close();
             in.close();
         } catch (IOException e) {
+        }
+    }
+
+    default boolean rename(@NotNull ResourceAccessor outAccessor, @NotNull ResourceType type, @NotNull Identifier before, @NotNull Identifier after)
+    {
+        InputStream in = this.getInputStream(type, before);
+        if (in == null) {
+            return false;
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            transferTo(in, out);
+            outAccessor.put(type, after, out.toByteArray());
+            out.close();
+            in.close();
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 

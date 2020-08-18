@@ -24,10 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -71,7 +68,7 @@ public class ZipOutputAccessor implements ResourceAccessor
     }
 
     @Override
-    public @NotNull List<String> getNamespaces(@NotNull ResourceType type)
+    public @NotNull Collection<String> getNamespaces(@NotNull ResourceType type)
     {
         return this.resources.getOrDefault(type, new ArrayList<>())
                 .stream().map(Identifier::getNamespace)

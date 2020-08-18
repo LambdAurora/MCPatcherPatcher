@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "me.lambdaurora.mcpatcherpatcher.fabric.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "ReloadableResourceManagerImplMixin",
+    "ZipResourcePackMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

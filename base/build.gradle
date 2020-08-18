@@ -1,0 +1,27 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+version = project.version
+archivesBaseName = project.archives_base_name
+
+dependencies {
+    api("org.aperlambda:lambdajcommon:1.8.0") {
+        exclude group: 'com.google.code.gson'
+        exclude group: 'com.google.guava'
+    }
+
+    api("com.google.code.gson:gson:2.8.6")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    withSourcesJar()
+}
+
+jar {
+    from "../LICENSE"
+}

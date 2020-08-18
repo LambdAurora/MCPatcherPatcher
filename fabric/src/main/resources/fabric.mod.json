@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "mcpatcherpatcher",
+  "name": "MCPatcherPatcher",
+  "version": "${version}",
+  "description": "Patches OptiFine and MCPatcher resource packs to alternatives format.",
+  "authors": [
+    "LambdAurora"
+  ],
+  "contact": {
+    "sources": "https://github.com/LambdAurora/MCPatcherPatcher.git",
+    "issues": "https://github.com/LambdAurora/MCPatcherPatcher/issues"
+  },
+  "license": "LGPLv3",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.lambdaurora.mcpatcherpatcher.fabric.MCPatcherPatcherFabric"
+    ]
+  },
+  "mixins": [
+    "mcpatcherpatcher.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.9.0",
+    "fabric": ">=0.14.0",
+    "minecraft": ">=1.16"
+  },
+  "recommends": {
+    "modmenu": ">=1.12.2"
+  },
+  "suggests": {
+    "flamingo": "*"
+  },
+  "breaks": {
+    "modmenu": "<1.12.2",
+    "optifabric": "*"
+  },
+  "custom": {
+    "modupdater": {
+      "strategy": "curseforge",
+      "projectID": 400322
+    }
+  }
+}
