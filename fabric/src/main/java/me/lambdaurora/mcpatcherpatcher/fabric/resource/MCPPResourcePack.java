@@ -171,6 +171,8 @@ public class MCPPResourcePack implements ResourcePack, ResourceAccessor
 
     private static Identifier fromPath(String path)
     {
+        if (path.startsWith("assets/"))
+            path = path.substring("assets/".length());
         String[] split = path.split("/", 2);
         return new Identifier(split[0], split[1]);
     }

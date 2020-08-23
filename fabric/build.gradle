@@ -34,9 +34,12 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation "io.github.prospector:modmenu:${project.modmenu_version}"
+    modRuntime("io.github.prospector:modmenu:${project.modmenu_version}") {
+        exclude group: 'net.fabricmc.fabric-api'
+    }
 
     api project(":base")
+    shadowInternal project(":base")
     shadow("org.aperlambda:lambdajcommon:1.8.1") {
         // Minecraft already has all that google crap.
         exclude group: 'com.google.code.gson'
@@ -69,6 +72,7 @@ jar {
 }
 
 task shadowJar(type: Jar) {
+    dependsOn(project(":base").jar)
     archiveClassifier.set("dev")
 
     from sourceSets.main.output
