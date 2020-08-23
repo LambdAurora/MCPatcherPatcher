@@ -158,4 +158,15 @@ public final class MCPatcherParser
 
         return result;
     }
+
+    public static Number getTimeTick(@NotNull String time)
+    {
+        String[] parts = time.split(":");
+        if (parts.length != 2)
+            return null;
+        int h = Integer.parseInt(parts[0]);
+        int m = Integer.parseInt(parts[1]);
+        int minutes = (h + (h >= 6 ? -6 : 18)) * 60 + m;
+        return minutes * 1000 / 60;
+    }
 }

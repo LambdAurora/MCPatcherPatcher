@@ -20,13 +20,13 @@ package me.lambdaurora.mcpatcherpatcher;
 import me.lambdaurora.mcpatcherpatcher.converter.CETConverter;
 import me.lambdaurora.mcpatcherpatcher.converter.Converter;
 import me.lambdaurora.mcpatcherpatcher.converter.RETConverter;
+import me.lambdaurora.mcpatcherpatcher.converter.SkyConverter;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
 import me.lambdaurora.mcpatcherpatcher.fs.ZipAccessor;
 import me.lambdaurora.mcpatcherpatcher.fs.ZipOutputAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ public class MCPatcherPatcher
     {
         this.converters.add(CETConverter::new);
         this.converters.add(RETConverter::new);
+        this.converters.add(SkyConverter::new);
     }
 
     public void convert(@NotNull ResourceAccessor input, @NotNull ResourceAccessor output)
@@ -55,12 +56,12 @@ public class MCPatcherPatcher
         });
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
         MCPatcherPatcher patcher = new MCPatcherPatcher();
         patcher.init();
 
-        File resPack = new File("Creature Variety 1.8.6.zip");
+        File resPack = new File("Creature Variety 1.8.8.zip");
         if (!resPack.exists())
             System.out.println("no");
         ResourceAccessor input;
@@ -71,19 +72,23 @@ public class MCPatcherPatcher
             return;
         }
 
-        File outPack = new File("creature_variety_noof.zip");
+        File outPack = new File("Creature Variety 1.8.8_noof.zip");
         /*if (!outPack.exists() && !outPack.mkdirs()) {
             System.out.println("Cannot mkdirs outPack");
             return;
         }*/
         ResourceAccessor out;
+        ZipOutputStream zipOutputStream;
         try {
-            out = new ZipOutputAccessor(new ZipOutputStream(new FileOutputStream(outPack)));
-        } catch (FileNotFoundException e) {
+            zipOutputStream = new ZipOutputStream(new FileOutputStream(outPack));
+            out = new ZipOutputAccessor(zipOutputStream);
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
         patcher.convert(input, out);
+
+        zipOutputStream.close();
     }
 }
