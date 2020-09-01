@@ -26,7 +26,6 @@ import me.lambdaurora.mcpatcherpatcher.fs.ZipOutputAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +37,12 @@ public class MCPatcherPatcher
 {
     private final List<BiFunction<ResourceAccessor, ResourceAccessor, Converter>> converters = new ArrayList<>();
 
-    public void init()
+    public MCPatcherPatcher()
+    {
+        this.init();
+    }
+
+    private void init()
     {
         this.converters.add(CETConverter::new);
         this.converters.add(RETConverter::new);
@@ -55,35 +59,31 @@ public class MCPatcherPatcher
         });
     }
 
-    public static void main(String[] args)
+    public void convert(@NotNull File inputFile, @NotNull File outputFile) throws IOException
     {
-        MCPatcherPatcher patcher = new MCPatcherPatcher();
-        patcher.init();
-
-        File resPack = new File("Creature Variety 1.8.6.zip");
-        if (!resPack.exists())
-            System.out.println("no");
+        if (!inputFile.exists())
+            System.out.println("Input File does not exist!");
         ResourceAccessor input;
         try {
-            input = new ZipAccessor(resPack);
+            input = new ZipAccessor(inputFile);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        File outPack = new File("creature_variety_noof.zip");
-        /*if (!outPack.exists() && !outPack.mkdirs()) {
-            System.out.println("Cannot mkdirs outPack");
-            return;
-        }*/
         ResourceAccessor out;
+        ZipOutputStream zipOutputStream;
         try {
-            out = new ZipOutputAccessor(new ZipOutputStream(new FileOutputStream(outPack)));
-        } catch (FileNotFoundException e) {
+            zipOutputStream = new ZipOutputStream(new FileOutputStream(outputFile));
+            out = new ZipOutputAccessor(zipOutputStream);
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        patcher.convert(input, out);
+        convert(input, out);
+
+        zipOutputStream.close();
     }
+
 }
