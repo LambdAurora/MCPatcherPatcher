@@ -30,7 +30,7 @@ public class MCPatcherPatcher extends JFrame
 {
     private JLabel       inputLabel;
     private JLabel       outputLabel;
-    private JScrollPane consoleLogScrollPane;
+    private JScrollPane  consoleLogScrollPane;
     private JTextArea    consoleLog;
     private JTextField   inputTextField;
     private JTextField   outputTextField;
@@ -146,7 +146,7 @@ public class MCPatcherPatcher extends JFrame
                 JOptionPane.showMessageDialog(this, "Output File not selected!");
                 return;
             }
-            if (this.inputTextField.getText().equals(this.outputTextField.getText())){
+            if (this.inputTextField.getText().equals(this.outputTextField.getText())) {
                 JOptionPane.showMessageDialog(this, "Output File can not be the same as Input File!");
             }
 
