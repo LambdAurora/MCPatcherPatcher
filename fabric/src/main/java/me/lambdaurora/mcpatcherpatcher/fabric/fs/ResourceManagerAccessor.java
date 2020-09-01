@@ -87,7 +87,6 @@ public class ResourceManagerAccessor implements ResourceAccessor
     @Override
     public @NotNull Collection<String> getNamespaces(@NotNull ResourceType type)
     {
-        System.out.println(this.resourceManager.getAllNamespaces());
         return this.resourceManager.getAllNamespaces();
     }
 
