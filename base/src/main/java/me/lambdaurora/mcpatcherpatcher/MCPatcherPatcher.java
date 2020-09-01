@@ -30,6 +30,7 @@ public class MCPatcherPatcher extends JFrame
 {
     private JLabel       inputLabel;
     private JLabel       outputLabel;
+    private JScrollPane consoleLogScrollPane;
     private JTextArea    consoleLog;
     private JTextField   inputTextField;
     private JTextField   outputTextField;
@@ -106,9 +107,11 @@ public class MCPatcherPatcher extends JFrame
         Dim2i consoleLogDim = new Dim2i(10, browseOutputDim.getLimitY() + 10, (int) this.getPreferredSize().getWidth() - 25,
                 (int) this.getPreferredSize().getHeight() - browseOutputDim.getLimitY() - 85);
         this.consoleLog.setBounds(consoleLogDim.getOriginX(), consoleLogDim.getOriginY(), consoleLogDim.getWidth(), consoleLogDim.getHeight());
-        this.consoleLog.setBorder(new LineBorder(Color.GRAY));
         this.consoleLog.setFont(consoleLogFont);
         this.consoleLog.setEditable(false);
+        this.consoleLogScrollPane = new JScrollPane(consoleLog);
+        this.consoleLogScrollPane.setBounds(consoleLogDim.getOriginX(), consoleLogDim.getOriginY(), consoleLogDim.getWidth(), consoleLogDim.getHeight());
+        this.consoleLogScrollPane.setBorder(new LineBorder(Color.GRAY));
 
         Dim2i convertDim = new Dim2i(10, consoleLogDim.getLimitY() + 5, (int) this.getPreferredSize().getWidth() - 25, 30);
         this.convert.setBounds(convertDim.getOriginX(), convertDim.getOriginY(), convertDim.getWidth(), convertDim.getHeight());
@@ -143,7 +146,7 @@ public class MCPatcherPatcher extends JFrame
                 JOptionPane.showMessageDialog(this, "Output File not selected!");
                 return;
             }
-            if (this.inputTextField.getText().equals(this.outputTextField.getText())) {
+            if (this.inputTextField.getText().equals(this.outputTextField.getText())){
                 JOptionPane.showMessageDialog(this, "Output File can not be the same as Input File!");
             }
 
@@ -161,7 +164,7 @@ public class MCPatcherPatcher extends JFrame
     {
         this.add(this.inputLabel);
         this.add(this.outputLabel);
-        this.add(this.consoleLog);
+        this.add(this.consoleLogScrollPane);
         this.add(this.inputTextField);
         this.add(this.outputTextField);
         this.add(this.browseInput);
@@ -229,7 +232,6 @@ public class MCPatcherPatcher extends JFrame
         {
             textArea.append(String.valueOf((char) b));
             textArea.setCaretPosition(textArea.getDocument().getLength());
-            textArea.update(textArea.getGraphics());
         }
     }
 
