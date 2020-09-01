@@ -17,8 +17,6 @@
 
 package me.lambdaurora.mcpatcherpatcher;
 
-import org.apache.commons.lang3.Validate;
-
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -258,16 +256,28 @@ public class MCPatcherPatcherApplication extends JFrame
 
                 for (String option : options) {
                     option = option.trim();
-                    if (option.toLowerCase().startsWith("input")) {
+                    if (option.toLowerCase().startsWith("input") && !option.equalsIgnoreCase("input") && !option.equalsIgnoreCase("input ")) {
                         inputFile = new File(option.substring("input ".length()));
-                    } else if (option.toLowerCase().startsWith("output")) {
+                    } else if (option.toLowerCase().startsWith("output") && !option.equalsIgnoreCase("output") && !option.equalsIgnoreCase("output ")) {
                         outputFile = new File(option.substring("output ".length()));
                     }
                 }
-                Validate.notNull(inputFile, "Missing Input File Path!");
-                Validate.notNull(outputFile, "Missing Output File Path!");
-                Validate.isTrue(inputFile.getPath().endsWith(".zip"), "Invalid Input File!");
-                Validate.isTrue(outputFile.getPath().endsWith(".zip"), "Invalid Output File!");
+                if (inputFile == null){
+                    System.out.println("Missing Input File Path!");
+                    return;
+                }
+                if (outputFile == null){
+                    System.out.println("Missing Output File Path!");
+                    return;
+                }
+                if (!inputFile.getAbsolutePath().endsWith(".zip")){
+                    System.out.println("Invalid Input File!");
+                    return;
+                }
+                if (!outputFile.getAbsolutePath().endsWith(".zip")){
+                    System.out.println("Invalid Output File!");
+                    return;
+                }
 
                 MCPatcherPatcher patcherInterface = new MCPatcherPatcher();
                 patcherInterface.convert(inputFile, outputFile);
