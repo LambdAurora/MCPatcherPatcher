@@ -43,8 +43,6 @@ public class MCPatcherPatcherFabric implements ClientModInitializer
     public void onInitializeClient()
     {
         INSTANCE = this;
-
-        this.main.init();
     }
 
     /**
