@@ -15,40 +15,28 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.lambdaurora.mcpatcherpatcher.converter;
+package me.lambdaurora.mcpatcherpatcher.fabric.image;
 
-import me.lambdaurora.mcpatcherpatcher.ErrorType;
-import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
+import me.lambdaurora.mcpatcherpatcher.image.BasicImage;
 import me.lambdaurora.mcpatcherpatcher.image.ImageProvider;
-import org.aperlambda.lambdacommon.Identifier;
-import org.aperlambda.lambdacommon.utils.Nameable;
+import net.minecraft.client.texture.NativeImage;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * Represents a converter.
+ * Represents an image provider using {@link BasicNativeImage} as implementation.
  *
  * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class Converter implements Nameable
+public class NativeImageProvider implements ImageProvider
 {
-    protected final ResourceAccessor input;
-    protected final ResourceAccessor output;
-
-    public Converter(@NotNull ResourceAccessor input, @NotNull ResourceAccessor output)
+    @Override
+    public @NotNull BasicImage readImage(@NotNull InputStream inputStream) throws IOException
     {
-        this.input = input;
-        this.output = output;
+        return new BasicNativeImage(NativeImage.read(inputStream));
     }
-
-    /**
-     * Converts the resource pack using the format associated to this converter to a new format.
-     *
-     * @param imageProvider An image provider.
-     * @return A map of failed conversions and their error type.
-     */
-    public abstract @NotNull Map<Identifier, ErrorType> convert(@NotNull ImageProvider imageProvider);
 }

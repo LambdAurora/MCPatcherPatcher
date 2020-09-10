@@ -17,25 +17,31 @@
 
 package me.lambdaurora.mcpatcherpatcher;
 
+import me.lambdaurora.mcpatcherpatcher.image.BufferedImageProvider;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 public class MCPatcherPatcherApplication extends JFrame
 {
-    private JLabel       inputLabel;
-    private JLabel       outputLabel;
-    private JScrollPane  consoleLogScrollPane;
-    private JTextArea    consoleLog;
-    private JTextField   inputTextField;
-    private JTextField   outputTextField;
-    private JButton      browseInput;
-    private JButton      browseOutput;
-    private JButton      convert;
-    private JFileChooser fileChooser;
+    private static final MCPatcherPatcher patcherInterface = new MCPatcherPatcher(new BufferedImageProvider());
+    private              JLabel           inputLabel;
+    private              JLabel           outputLabel;
+    private              JScrollPane      consoleLogScrollPane;
+    private              JTextArea        consoleLog;
+    private              JTextField       inputTextField;
+    private              JTextField       outputTextField;
+    private              JButton          browseInput;
+    private              JButton          browseOutput;
+    private              JButton          convert;
+    private              JFileChooser     fileChooser;
 
     public MCPatcherPatcherApplication()
     {
@@ -148,7 +154,6 @@ public class MCPatcherPatcherApplication extends JFrame
                 JOptionPane.showMessageDialog(this, "Output File can not be the same as Input File!");
             }
 
-            MCPatcherPatcher patcherInterface = new MCPatcherPatcher();
             try {
                 patcherInterface.convert(new File(this.inputTextField.getText()), new File(this.outputTextField.getText()));
             } catch (IOException ioException) {
@@ -262,24 +267,23 @@ public class MCPatcherPatcherApplication extends JFrame
                         outputFile = new File(option.substring("output ".length()));
                     }
                 }
-                if (inputFile == null){
+                if (inputFile == null) {
                     System.out.println("Missing Input File Path!");
                     return;
                 }
-                if (outputFile == null){
+                if (outputFile == null) {
                     System.out.println("Missing Output File Path!");
                     return;
                 }
-                if (!inputFile.getAbsolutePath().endsWith(".zip")){
+                if (!inputFile.getAbsolutePath().endsWith(".zip")) {
                     System.out.println("Invalid Input File!");
                     return;
                 }
-                if (!outputFile.getAbsolutePath().endsWith(".zip")){
+                if (!outputFile.getAbsolutePath().endsWith(".zip")) {
                     System.out.println("Invalid Output File!");
                     return;
                 }
 
-                MCPatcherPatcher patcherInterface = new MCPatcherPatcher();
                 patcherInterface.convert(inputFile, outputFile);
                 System.out.printf("Output File: %s%n", outputFile.getAbsolutePath());
             }

@@ -23,6 +23,7 @@ import me.lambdaurora.mcpatcherpatcher.converter.RETConverter;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
 import me.lambdaurora.mcpatcherpatcher.fs.ZipAccessor;
 import me.lambdaurora.mcpatcherpatcher.fs.ZipOutputAccessor;
+import me.lambdaurora.mcpatcherpatcher.image.ImageProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -36,9 +37,11 @@ import java.util.zip.ZipOutputStream;
 public class MCPatcherPatcher
 {
     private final List<BiFunction<ResourceAccessor, ResourceAccessor, Converter>> converters = new ArrayList<>();
+    private final ImageProvider                                                   imageProvider;
 
-    public MCPatcherPatcher()
+    public MCPatcherPatcher(@NotNull ImageProvider imageProvider)
     {
+        this.imageProvider = imageProvider;
         this.init();
     }
 
@@ -55,7 +58,7 @@ public class MCPatcherPatcher
         this.converters.forEach(f -> {
             Converter converter = f.apply(input, output);
             System.out.println("Applying " + converter.getName() + " conversion.");
-            converter.convert();
+            converter.convert(imageProvider);
         });
     }
 
@@ -81,7 +84,7 @@ public class MCPatcherPatcher
             return;
         }
 
-        convert(input, out);
+        this.convert(input, out);
 
         zipOutputStream.close();
     }

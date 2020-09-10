@@ -22,13 +22,11 @@ import com.google.gson.JsonObject;
 import me.lambdaurora.mcpatcherpatcher.ErrorType;
 import me.lambdaurora.mcpatcherpatcher.ResourceType;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
+import me.lambdaurora.mcpatcherpatcher.image.ImageProvider;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.LambdaConstants;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +53,7 @@ public class RETConverter extends Converter
     }
 
     @Override
-    public @NotNull Map<Identifier, ErrorType> convert()
+    public @NotNull Map<Identifier, ErrorType> convert(@NotNull ImageProvider imageProvider)
     {
         Map<Identifier, ErrorType> failed = new HashMap<>();
         Map<Identifier, List<TextureEntry>> retIds = new HashMap<>();
