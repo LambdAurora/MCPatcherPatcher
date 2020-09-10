@@ -18,6 +18,7 @@
 package me.lambdaurora.mcpatcherpatcher.fabric;
 
 import me.lambdaurora.mcpatcherpatcher.MCPatcherPatcher;
+import me.lambdaurora.mcpatcherpatcher.fabric.image.NativeImageProvider;
 import me.lambdaurora.mcpatcherpatcher.fabric.resource.MCPPResourcePack;
 import net.fabricmc.api.ClientModInitializer;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +37,7 @@ public class MCPatcherPatcherFabric implements ClientModInitializer
     public static final net.minecraft.util.Identifier DUMMY_ID = new net.minecraft.util.Identifier(MODID, "dummy");
     private static      MCPatcherPatcherFabric        INSTANCE;
     public final        Logger                        logger   = LogManager.getLogger(MODID);
-    public final        MCPatcherPatcher              main     = new MCPatcherPatcher();
+    public final        MCPatcherPatcher              main     = new MCPatcherPatcher(new NativeImageProvider());
     public              MCPPResourcePack              resourcePack;
 
     @Override

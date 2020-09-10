@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import me.lambdaurora.mcpatcherpatcher.ErrorType;
 import me.lambdaurora.mcpatcherpatcher.ResourceType;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
+import me.lambdaurora.mcpatcherpatcher.image.ImageProvider;
 import me.lambdaurora.mcpatcherpatcher.mcpatcher.RandomEntityRule;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.LambdaConstants;
@@ -53,7 +54,7 @@ public class CETConverter extends Converter
     }
 
     @Override
-    public @NotNull Map<Identifier, ErrorType> convert()
+    public @NotNull Map<Identifier, ErrorType> convert(@NotNull ImageProvider imageProvider)
     {
         Map<Identifier, ErrorType> failed = new HashMap<>();
 
