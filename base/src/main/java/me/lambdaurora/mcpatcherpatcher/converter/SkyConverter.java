@@ -114,7 +114,7 @@ public class SkyConverter extends Converter
             json = new JsonObject();
             processSkyboxTexture(json, textureId, textureImage);
 
-            int startFadeIn = MCPatcherParser.toTickTime(properties.getProperty("endFadeOut")).intValue();
+            int startFadeIn = MCPatcherParser.toTickTime(properties.getProperty("startFadeIn")).intValue();
             int endFadeIn = MCPatcherParser.toTickTime(properties.getProperty("endFadeIn")).intValue();
             int endFadeOut = MCPatcherParser.toTickTime(properties.getProperty("endFadeOut")).intValue();
             int startFadeOut;
@@ -126,10 +126,10 @@ public class SkyConverter extends Converter
                     startFadeOut = endFadeOut;
                 }
             }
-            json.addProperty("startFadeIn", startFadeIn);
-            json.addProperty("endFadeIn", endFadeIn);
-            json.addProperty("startFadeOut", startFadeOut);
-            json.addProperty("endFadeOut", endFadeOut);
+            json.addProperty("startFadeIn", MCPatcherParser.normalizeTickTime(startFadeIn));
+            json.addProperty("endFadeIn", MCPatcherParser.normalizeTickTime(endFadeIn));
+            json.addProperty("startFadeOut", MCPatcherParser.normalizeTickTime(startFadeOut));
+            json.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
         }
 
         if (json == null)
