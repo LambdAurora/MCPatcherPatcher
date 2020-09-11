@@ -30,7 +30,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -42,19 +41,7 @@ public abstract class ReloadableResourceManagerImplMixin implements ReloadableRe
     private ResourceType type;
 
     @Shadow
-    @Final
-    private Map<String, NamespaceResourceManager> namespaceManagers;
-
-    @Inject(method = "beginMonitoredReload", at = @At("HEAD"))
-    private void onReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReloadMonitor> cir)
-    {
-        if (this.type == ResourceType.SERVER_DATA)
-            return;
-
-        MCPatcherPatcherFabric mod = MCPatcherPatcherFabric.get();
-        mod.log("Inject generated resource packs.");
-        packs.add(mod.resourcePack = new MCPPResourcePack());
-    }
+    public abstract void addPack(ResourcePack resourcePack);
 
     @Inject(
             method = "beginMonitoredReload",
@@ -70,14 +57,9 @@ public abstract class ReloadableResourceManagerImplMixin implements ReloadableRe
             return;
 
         MCPatcherPatcherFabric mod = MCPatcherPatcherFabric.get();
-        mod.main.convert(new ResourceManagerAccessor(this), mod.resourcePack);
+        mod.main.convert(new ResourceManagerAccessor(this), mod.resourcePack = new MCPPResourcePack());
 
-        // Injects to each affected namespaces the generated resource pack.
-        mod.resourcePack.getNamespaces(ResourceType.CLIENT_RESOURCES).forEach(namespace -> {
-            NamespaceResourceManager manager = this.namespaceManagers.get(namespace);
-            if (manager != null) {
-                manager.addPack(mod.resourcePack);
-            }
-        });
+        mod.log("Inject generated resource packs.");
+        this.addPack(mod.resourcePack);
     }
 }
