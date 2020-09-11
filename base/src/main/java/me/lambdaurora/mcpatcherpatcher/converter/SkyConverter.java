@@ -50,10 +50,10 @@ public class SkyConverter extends Converter
                         .forEach(id -> {
                             Matcher matcher = SKY_PATTERN.matcher(id.getName());
                             if (matcher.find()) {
-                                String world = matcher.group("world");
+                                String dimension = matcher.group("world");
                                 String name = matcher.group("name");
 
-                                if (world == null || name == null)
+                                if (dimension == null || name == null)
                                     return;
 
                                 Identifier fsbId = new Identifier(id.getNamespace(), String.format("%s/%s.json", FABRICSKYBOXES_PARENT, name));
@@ -74,7 +74,7 @@ public class SkyConverter extends Converter
                                 }
 
                                 // Fixme: bad idea I'm just yeeting code
-                                Identifier textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s", world) + properties.getProperty("source")
+                                Identifier textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s", dimension) + properties.getProperty("source")
                                         .replaceFirst("\\.", ""));
 
                                 InputStream textureInputStream = this.input.getInputStream(ResourceType.ASSETS, textureId);
@@ -91,7 +91,7 @@ public class SkyConverter extends Converter
                                     return;
                                 }
 
-                                this.convert(fsbId, textureId, textureImage, properties);
+                                this.convert(fsbId, textureId, textureImage, properties, dimension);
                             }
                         }));
 
@@ -105,8 +105,9 @@ public class SkyConverter extends Converter
      * @param textureId    The texture file identifier.
      * @param textureImage The texture BasicImage
      * @param properties   The MCPatcher properties file.
+     * @param dimension    The dimension name
      */
-    private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties)
+    private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties, @NotNull String dimension)
     {
         if (properties.size() == 0)
             return;
@@ -115,12 +116,12 @@ public class SkyConverter extends Converter
             json = new JsonObject();
             processSkyboxTexture(json, textureId, textureImage);
 
-            int startFadeIn = MCPatcherParser.toTickTime(properties.getProperty("startFadeIn")).intValue();
-            int endFadeIn = MCPatcherParser.toTickTime(properties.getProperty("endFadeIn")).intValue();
-            int endFadeOut = MCPatcherParser.toTickTime(properties.getProperty("endFadeOut")).intValue();
+            int startFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeIn"))).intValue();
+            int endFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("endFadeIn"))).intValue();
+            int endFadeOut = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("endFadeOut"))).intValue();
             int startFadeOut;
             if (properties.containsKey("startFadeOut")) {
-                startFadeOut = MCPatcherParser.toTickTime(properties.getProperty("startFadeOut")).intValue();
+                startFadeOut = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeOut"))).intValue();
             } else {
                 startFadeOut = endFadeOut - (endFadeIn - startFadeIn);
                 if (startFadeIn <= startFadeOut && endFadeIn >= startFadeOut) {
@@ -149,6 +150,7 @@ public class SkyConverter extends Converter
                 }
             }
             //FSB dimensions default is overworld, how should I check for existing json?
+            json.addProperty("dimensions", dimension.equals("world0") ? "overworld" : dimension);
         }
 
         if (json == null)
@@ -158,29 +160,35 @@ public class SkyConverter extends Converter
         this.output.put(ResourceType.ASSETS, fsbId, res.getBytes());
     }
 
+    /**
+     * Converts Optifine skybox textures to FSB format.
+     *
+     * @param json         The FSB JSON file.
+     * @param textureId    The Skybox Texture Identifier file.
+     * @param textureImage The Skybox Texture file.
+     */
     private void processSkyboxTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull BasicImage textureImage)
     {
         String textureName = textureId.getName().substring(textureId.getName().lastIndexOf("/") + 1, textureId.getName().lastIndexOf("."));
 
         int scale = textureImage.getHeight() / 2;
-
-        BasicImage bottom = textureImage.getSubImage(0, 0, scale, scale);
-        BasicImage top = textureImage.getSubImage(scale, 0, scale, scale);
-        BasicImage west = textureImage.getSubImage(scale * 2, 0, scale, scale);
-        BasicImage north = textureImage.getSubImage(0, scale, scale, scale);
-        BasicImage east = textureImage.getSubImage(scale, scale, scale, scale);
-        BasicImage south = textureImage.getSubImage(scale * 2, scale, scale, scale);
-
-        processFaceTexture(json, textureId, textureName, "top", top);
-        processFaceTexture(json, textureId, textureName, "bottom", bottom);
-        processFaceTexture(json, textureId, textureName, "north", north);
-        processFaceTexture(json, textureId, textureName, "south", south);
-        processFaceTexture(json, textureId, textureName, "east", east);
-        processFaceTexture(json, textureId, textureName, "west", west);
-
-        System.out.println("Processed: " + textureName);
+        processFaceTexture(json, textureId, textureName, "top", textureImage.getSubImage(scale, 0, scale, scale));
+        processFaceTexture(json, textureId, textureName, "bottom", textureImage.getSubImage(0, 0, scale, scale));
+        processFaceTexture(json, textureId, textureName, "north", textureImage.getSubImage(0, scale, scale, scale));
+        processFaceTexture(json, textureId, textureName, "south", textureImage.getSubImage(scale * 2, scale, scale, scale));
+        processFaceTexture(json, textureId, textureName, "east", textureImage.getSubImage(scale, scale, scale, scale));
+        processFaceTexture(json, textureId, textureName, "west", textureImage.getSubImage(scale * 2, 0, scale, scale));
     }
 
+    /**
+     * Generates new face textures.
+     *
+     * @param json        The FSB JSON file.
+     * @param textureId   The Skybox Texture Identifier file.
+     * @param textureName The Name of Skybox Texture file.
+     * @param face        The Name of Texture Face.
+     * @param texture     The Texture Face file.
+     */
     private void processFaceTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
     {
         Identifier faceId = new Identifier(textureId.getNamespace(), String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
