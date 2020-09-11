@@ -29,9 +29,10 @@ import java.util.regex.Pattern;
  */
 public class SkyConverter extends Converter
 {
-    public static final String  FABRICSKYBOXES_PARENT = "fabricskyboxes/sky";
-    public static final String  SKY_PARENT            = "optifine/sky";
-    public static final Pattern SKY_PATTERN           = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+    public static final String  FABRICSKYBOXES_NAMESPACE = "fabricskyboxes";
+    public static final String  FABRICSKYBOXES_PARENT    = "sky";
+    public static final String  SKY_PARENT               = "optifine/sky";
+    public static final Pattern SKY_PATTERN              = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
 
     public SkyConverter(@NotNull ResourceAccessor input, @NotNull ResourceAccessor output)
     {
@@ -56,7 +57,7 @@ public class SkyConverter extends Converter
                                 if (dimension == null || name == null)
                                     return;
 
-                                Identifier fsbId = new Identifier(id.getNamespace(), String.format("%s/%s.json", FABRICSKYBOXES_PARENT, name));
+                                Identifier fsbId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.json", FABRICSKYBOXES_PARENT, name));
 
                                 InputStream inputStream = this.input.getInputStream(ResourceType.ASSETS, id);
                                 if (inputStream == null) {
@@ -172,26 +173,25 @@ public class SkyConverter extends Converter
         String textureName = textureId.getName().substring(textureId.getName().lastIndexOf("/") + 1, textureId.getName().lastIndexOf("."));
 
         int scale = textureImage.getHeight() / 2;
-        processFaceTexture(json, textureId, textureName, "top", textureImage.getSubImage(scale, 0, scale, scale));
-        processFaceTexture(json, textureId, textureName, "bottom", textureImage.getSubImage(0, 0, scale, scale));
-        processFaceTexture(json, textureId, textureName, "north", textureImage.getSubImage(0, scale, scale, scale));
-        processFaceTexture(json, textureId, textureName, "south", textureImage.getSubImage(scale * 2, scale, scale, scale));
-        processFaceTexture(json, textureId, textureName, "east", textureImage.getSubImage(scale, scale, scale, scale));
-        processFaceTexture(json, textureId, textureName, "west", textureImage.getSubImage(scale * 2, 0, scale, scale));
+        processFaceTexture(json, textureName, "top", textureImage.getSubImage(scale, 0, scale, scale));
+        processFaceTexture(json, textureName, "bottom", textureImage.getSubImage(0, 0, scale, scale));
+        processFaceTexture(json, textureName, "north", textureImage.getSubImage(0, scale, scale, scale));
+        processFaceTexture(json, textureName, "south", textureImage.getSubImage(scale * 2, scale, scale, scale));
+        processFaceTexture(json, textureName, "east", textureImage.getSubImage(scale, scale, scale, scale));
+        processFaceTexture(json, textureName, "west", textureImage.getSubImage(scale * 2, 0, scale, scale));
     }
 
     /**
      * Generates new face textures.
      *
      * @param json        The FSB JSON file.
-     * @param textureId   The Skybox Texture Identifier file.
      * @param textureName The Name of Skybox Texture file.
      * @param face        The Name of Texture Face.
      * @param texture     The Texture Face file.
      */
-    private void processFaceTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
+    private void processFaceTexture(@NotNull JsonObject json, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
     {
-        Identifier faceId = new Identifier(textureId.getNamespace(), String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
+        Identifier faceId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
         this.output.put(ResourceType.ASSETS, faceId, texture.getBytes());
         json.addProperty(String.format("texture_%s", face), faceId.toString());
     }
