@@ -17,12 +17,16 @@
 
 package me.lambdaurora.mcpatcherpatcher.mcpatcher;
 
-import me.lambdaurora.mcpatcherpatcher.BiomeUtils;
+import me.lambdaurora.mcpatcherpatcher.utils.BiomeUtils;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.utils.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -159,7 +163,7 @@ public final class MCPatcherParser
         return result;
     }
 
-    public static Number getTimeTick(@NotNull String time)
+    public static Number toTickTime(@NotNull String time)
     {
         String[] parts = time.split(":");
         if (parts.length != 2)

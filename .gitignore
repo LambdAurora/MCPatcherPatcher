@@ -68,3 +68,10 @@ build/
 dist/
 run/
 target/
+
+# Minecraft
+config/
+saves/
+resourcepacks/
+usercache.json
+options.txt

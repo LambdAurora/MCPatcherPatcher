@@ -15,8 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.lambdaurora.mcpatcherpatcher;
+package me.lambdaurora.mcpatcherpatcher.utils;
 
+import me.lambdaurora.mcpatcherpatcher.Identifiers;
 import org.aperlambda.lambdacommon.Identifier;
 import org.jetbrains.annotations.NotNull;
 

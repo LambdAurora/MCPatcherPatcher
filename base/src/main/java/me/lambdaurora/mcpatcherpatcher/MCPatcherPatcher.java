@@ -20,6 +20,7 @@ package me.lambdaurora.mcpatcherpatcher;
 import me.lambdaurora.mcpatcherpatcher.converter.CETConverter;
 import me.lambdaurora.mcpatcherpatcher.converter.Converter;
 import me.lambdaurora.mcpatcherpatcher.converter.RETConverter;
+import me.lambdaurora.mcpatcherpatcher.converter.SkyConverter;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
 import me.lambdaurora.mcpatcherpatcher.fs.ZipAccessor;
 import me.lambdaurora.mcpatcherpatcher.fs.ZipOutputAccessor;
@@ -49,6 +50,7 @@ public class MCPatcherPatcher
     {
         this.converters.add(CETConverter::new);
         this.converters.add(RETConverter::new);
+        this.converters.add(SkyConverter::new);
     }
 
     public void convert(@NotNull ResourceAccessor input, @NotNull ResourceAccessor output)

@@ -1,10 +1,11 @@
 package me.lambdaurora.mcpatcherpatcher.converter;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.lambdaurora.mcpatcherpatcher.ErrorType;
 import me.lambdaurora.mcpatcherpatcher.ResourceType;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
+import me.lambdaurora.mcpatcherpatcher.image.BasicImage;
+import me.lambdaurora.mcpatcherpatcher.image.ImageProvider;
 import me.lambdaurora.mcpatcherpatcher.mcpatcher.MCPatcherParser;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.LambdaConstants;
@@ -27,9 +28,9 @@ import java.util.regex.Pattern;
  */
 public class SkyConverter extends Converter
 {
-    public static final String  SKY_PARENT  = "optifine/sky";
-
-    public static final Pattern SKY_PATTERN = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+    public static final String  FABRICSKYBOXES_PARENT = "fabricskyboxes/sky";
+    public static final String  SKY_PARENT            = "optifine/sky";
+    public static final Pattern SKY_PATTERN           = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
 
     public SkyConverter(@NotNull ResourceAccessor input, @NotNull ResourceAccessor output)
     {
@@ -37,7 +38,7 @@ public class SkyConverter extends Converter
     }
 
     @Override
-    public @NotNull Map<Identifier, ErrorType> convert()
+    public @NotNull Map<Identifier, ErrorType> convert(@NotNull ImageProvider imageProvider)
     {
         Map<Identifier, ErrorType> failed = new HashMap<>();
 
@@ -54,8 +55,7 @@ public class SkyConverter extends Converter
                                 if (world == null || name == null)
                                     return;
 
-                                Identifier fsbId = new Identifier(id.getNamespace(),
-                                        "fabricskyboxes/sky/" + world + "/" + name + ".json");
+                                Identifier fsbId = new Identifier(id.getNamespace(), String.format("%s/%s.json", FABRICSKYBOXES_PARENT, name));
 
                                 InputStream inputStream = this.input.getInputStream(ResourceType.ASSETS, id);
                                 if (inputStream == null) {
@@ -73,11 +73,24 @@ public class SkyConverter extends Converter
                                 }
 
                                 // Fixme: bad idea I'm just yeeting code
-                                String texture = new Identifier(id.getNamespace(), id.getName().substring(0,
-                                        id.getName().lastIndexOf("/") + 1) + properties.getProperty("source")
-                                        .replaceFirst("\\./", "")).toString();
+                                Identifier textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s", world) + properties.getProperty("source")
+                                        .replaceFirst("\\.", ""));
 
-                                this.convert(fsbId, texture, properties);
+                                InputStream textureInputStream = this.input.getInputStream(ResourceType.ASSETS, textureId);
+                                if (textureInputStream == null) {
+                                    failed.put(textureId, ErrorType.INPUTSTREAM_IO);
+                                    return;
+                                }
+
+                                BasicImage textureImage;
+                                try {
+                                    textureImage = imageProvider.readImage(textureInputStream);
+                                } catch (IOException e) {
+                                    failed.put(textureId, ErrorType.INPUTSTREAM_IO);
+                                    return;
+                                }
+
+                                this.convert(fsbId, textureId, textureImage, properties);
                             }
                         }));
 
@@ -86,19 +99,37 @@ public class SkyConverter extends Converter
 
     /**
      * Converts one MCPatcher file to FSB format.
-     *  @param fsbId The FSB metadata file identifier.
-     * @param texture The Texture Location.
-     * @param properties The MCPatcher properties file.
+     *
+     * @param fsbId        The FSB metadata file identifier.
+     * @param textureId    The texture file identifier.
+     * @param textureImage The texture BasicImage
+     * @param properties   The MCPatcher properties file.
      */
-    private void convert(@NotNull Identifier fsbId, @NotNull String texture, @NotNull Properties properties)
+    private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties)
     {
         if (properties.size() == 0)
             return;
         JsonObject json = null;
         if (properties.size() > 1) {
             json = new JsonObject();
-            json.addProperty("texture", texture);
-            convertPropertiesToJson(json, properties);
+            processSkyboxTexture(json, textureId, textureImage);
+
+            int startFadeIn = MCPatcherParser.toTickTime(properties.getProperty("endFadeOut")).intValue();
+            int endFadeIn = MCPatcherParser.toTickTime(properties.getProperty("endFadeIn")).intValue();
+            int endFadeOut = MCPatcherParser.toTickTime(properties.getProperty("endFadeOut")).intValue();
+            int startFadeOut;
+            if (properties.containsKey("startFadeOut")) {
+                startFadeOut = MCPatcherParser.toTickTime(properties.getProperty("startFadeOut")).intValue();
+            } else {
+                startFadeOut = endFadeOut - (endFadeIn - startFadeIn);
+                if (startFadeIn <= startFadeOut && endFadeIn >= startFadeOut) {//Checks in case time in between
+                    startFadeOut = endFadeOut;
+                }
+            }
+            json.addProperty("startFadeIn", startFadeIn);
+            json.addProperty("endFadeIn", endFadeIn);
+            json.addProperty("startFadeOut", startFadeOut);
+            json.addProperty("endFadeOut", endFadeOut);
         }
 
         if (json == null)
@@ -108,43 +139,34 @@ public class SkyConverter extends Converter
         this.output.put(ResourceType.ASSETS, fsbId, res.getBytes());
     }
 
-    private void convertPropertiesToJson(@NotNull JsonObject json, @NotNull Properties properties)
+    private void processSkyboxTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull BasicImage textureImage)
     {
-        // Very cursed
-        json.addProperty("startFadeIn", MCPatcherParser.getTimeTick(properties.getProperty("startFadeIn")));
-        json.addProperty("endFadeIn", MCPatcherParser.getTimeTick(properties.getProperty("endFadeIn")));
-        json.addProperty("endFadeOut", MCPatcherParser.getTimeTick(properties.getProperty("endFadeOut")));
-        if(properties.getProperty("blend") != null)
-            json.addProperty("blend", properties.getProperty("blend"));
-        if(properties.getProperty("rotate") != null)
-            json.addProperty("rotate", Boolean.parseBoolean(properties.getProperty("rotate")));
-        if(properties.getProperty("speed") != null)
-            json.addProperty("speed", Float.parseFloat(properties.getProperty("speed")));
-        if(properties.getProperty("axis") != null){
-            JsonArray axis = new JsonArray();
-            for (String a: properties.getProperty("axis").split(" ")){
-                axis.add(Float.parseFloat(a));
-            }
-            json.add("axis", axis);
-        }
-        if(properties.getProperty("weather") != null)
-            json.addProperty("weather", properties.getProperty("weather"));
-        if(properties.getProperty("biomes") != null){
-            JsonArray biomes = new JsonArray();
-            for (String biome: Objects.requireNonNull(properties.getProperty("biomes").split(" "))){
-                biomes.add(biome);
-            }
-            json.add("biomes", biomes);
-        }
-        if(properties.getProperty("heights") != null){
-            JsonArray heights = new JsonArray();
-            for (String height: properties.getProperty("heights").split(" ")){
-                heights.add(height);
-            }
-            json.add("heights", heights);
-        }
-        if(properties.getProperty("transition") != null)
-            json.addProperty("transition", properties.getProperty("transition"));
+        String textureName = textureId.getName().substring(textureId.getName().lastIndexOf("/") + 1, textureId.getName().lastIndexOf("."));
+
+        int scale = textureImage.getHeight() / 2;
+
+        BasicImage bottom = textureImage.getSubImage(0, 0, scale, scale);
+        BasicImage top = textureImage.getSubImage(scale, 0, scale, scale);
+        BasicImage west = textureImage.getSubImage(scale * 2, 0, scale, scale);
+        BasicImage north = textureImage.getSubImage(0, scale, scale, scale);
+        BasicImage east = textureImage.getSubImage(scale, scale, scale, scale);
+        BasicImage south = textureImage.getSubImage(scale * 2, scale, scale, scale);
+
+        processFaceTexture(json, textureId, textureName, "top", top);
+        processFaceTexture(json, textureId, textureName, "bottom", bottom);
+        processFaceTexture(json, textureId, textureName, "north", north);
+        processFaceTexture(json, textureId, textureName, "south", south);
+        processFaceTexture(json, textureId, textureName, "east", east);
+        processFaceTexture(json, textureId, textureName, "west", west);
+
+        System.out.println("Processed: " + textureName);
+    }
+
+    private void processFaceTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
+    {
+        Identifier faceId = new Identifier(textureId.getNamespace(), String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
+        this.output.put(ResourceType.ASSETS, faceId, texture.getBytes());
+        json.addProperty(String.format("texture_%s", face), faceId.toString());
     }
 
     @Override

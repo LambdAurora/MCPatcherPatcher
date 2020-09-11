@@ -18,6 +18,8 @@
 package me.lambdaurora.mcpatcherpatcher;
 
 import me.lambdaurora.mcpatcherpatcher.image.BufferedImageProvider;
+import me.lambdaurora.mcpatcherpatcher.utils.CustomOutputStream;
+import me.lambdaurora.mcpatcherpatcher.utils.Dim2i;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -25,7 +27,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
@@ -173,69 +174,6 @@ public class MCPatcherPatcherApplication extends JFrame
         this.add(this.browseInput);
         this.add(this.browseOutput);
         this.add(this.convert);
-    }
-
-    private class Dim2i
-    {
-        private final int x;
-        private final int y;
-        private final int width;
-        private final int height;
-
-        public Dim2i(int x, int y, int width, int height)
-        {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-
-        public int getOriginX()
-        {
-            return this.x;
-        }
-
-        public int getOriginY()
-        {
-            return this.y;
-        }
-
-        public int getWidth()
-        {
-            return this.width;
-        }
-
-        public int getHeight()
-        {
-            return this.height;
-        }
-
-        public int getLimitX()
-        {
-            return this.x + this.width;
-        }
-
-        public int getLimitY()
-        {
-            return this.y + this.height;
-        }
-    }
-
-    private class CustomOutputStream extends OutputStream
-    {
-        private JTextArea textArea;
-
-        public CustomOutputStream(JTextArea textArea)
-        {
-            this.textArea = textArea;
-        }
-
-        @Override
-        public void write(int b) throws IOException
-        {
-            textArea.append(String.valueOf((char) b));
-            textArea.setCaretPosition(textArea.getDocument().getLength());
-        }
     }
 
     public static void main(String[] args) throws IOException
