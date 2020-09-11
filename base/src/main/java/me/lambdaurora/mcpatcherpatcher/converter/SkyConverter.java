@@ -1,5 +1,6 @@
 package me.lambdaurora.mcpatcherpatcher.converter;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.lambdaurora.mcpatcherpatcher.ErrorType;
 import me.lambdaurora.mcpatcherpatcher.ResourceType;
@@ -122,7 +123,7 @@ public class SkyConverter extends Converter
                 startFadeOut = MCPatcherParser.toTickTime(properties.getProperty("startFadeOut")).intValue();
             } else {
                 startFadeOut = endFadeOut - (endFadeIn - startFadeIn);
-                if (startFadeIn <= startFadeOut && endFadeIn >= startFadeOut) {//Checks in case time in between
+                if (startFadeIn <= startFadeOut && endFadeIn >= startFadeOut) {
                     startFadeOut = endFadeOut;
                 }
             }
@@ -130,6 +131,24 @@ public class SkyConverter extends Converter
             json.addProperty("endFadeIn", MCPatcherParser.normalizeTickTime(endFadeIn));
             json.addProperty("startFadeOut", MCPatcherParser.normalizeTickTime(startFadeOut));
             json.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
+
+            if (properties.containsKey("speed")) {
+                json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
+            }
+
+            if (properties.containsKey("biomes")) {
+                String[] biomes = properties.getProperty("biomes").split(" ");
+                if (biomes.length == 1) {
+                    json.addProperty("biomes", biomes[0]);
+                } else {
+                    JsonArray jsonBiomes = new JsonArray();
+                    for (String biome : biomes) {
+                        jsonBiomes.add(biome);
+                    }
+                    json.add("biomes", jsonBiomes);
+                }
+            }
+            //FSB dimensions default is overworld, how should I check for existing json?
         }
 
         if (json == null)
