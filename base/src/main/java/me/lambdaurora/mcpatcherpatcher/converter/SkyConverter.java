@@ -137,6 +137,19 @@ public class SkyConverter extends Converter
             if (properties.containsKey("speed")) {
                 json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
             }
+            
+            if (properties.containsKey("weather")) {
+                String[] weathers = properties.getProperty("weather").split(" ");
+                if (weathers.length == 1) {
+                    json.addProperty("weather", weathers[0]);
+                } else {
+                    JsonArray jsonWeather = new JsonArray();
+                    for (String weather : weathers) {
+                        jsonWeather.add(weather);
+                    }
+                    json.add("weather", jsonWeather);
+                }
+            }
 
             if (properties.containsKey("biomes")) {
                 String[] biomes = properties.getProperty("biomes").split(" ");
