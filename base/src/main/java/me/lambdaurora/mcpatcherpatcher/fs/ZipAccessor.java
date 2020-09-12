@@ -78,7 +78,7 @@ public class ZipAccessor implements ResourceAccessor
                 .map(entry -> {
                     String name = entry.getName().replace(type.getName() + "/", "");
                     int first = name.indexOf("/");
-                    if (first == name.length() - 1)
+                    if (first == name.length() - 1 || first == -1)
                         return Identifier.IDENTIFIER_INVALID;
                     return new Identifier(name.substring(0, first), name.substring(first + 1));
                 })
