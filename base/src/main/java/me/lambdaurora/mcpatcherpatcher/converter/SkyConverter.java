@@ -74,9 +74,20 @@ public class SkyConverter extends Converter
                                     return;
                                 }
 
-                                // Fixme: bad idea I'm just yeeting code
-                                Identifier textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s", dimension) + properties.getProperty("source")
-                                        .replaceFirst("\\.", ""));
+                                Identifier textureId = null;
+                                if (properties.containsKey("source")) {
+                                    String source = properties.getProperty("source");
+                                    if (source.startsWith("./")) {
+                                        textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s", dimension, source.substring(2)));
+                                    } else if (source.startsWith("assets/")) {
+                                        int firstIndex = source.indexOf("/") + 1;
+                                        int secondIndex = source.indexOf("/", firstIndex);
+                                        String sourceNamespace = source.substring(firstIndex, secondIndex);
+                                        textureId = new Identifier(sourceNamespace, source.substring(secondIndex + 1));
+                                    }
+                                } else {
+                                    textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s.png", dimension, name));
+                                }
 
                                 InputStream textureInputStream = this.input.getInputStream(ResourceType.ASSETS, textureId);
                                 if (textureInputStream == null) {
@@ -115,6 +126,8 @@ public class SkyConverter extends Converter
         JsonObject json = null;
         if (properties.size() > 1) {
             json = new JsonObject();
+
+            json.addProperty("type", "textured"); // "alright only thing you need to account for is literally insert "type": "textured" into the json" -AMereBagatelle
             processSkyboxTexture(json, textureId, textureImage);
 
             int startFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeIn"))).intValue();
@@ -137,7 +150,7 @@ public class SkyConverter extends Converter
             if (properties.containsKey("speed")) {
                 json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
             }
-            
+
             if (properties.containsKey("weather")) {
                 String[] weathers = properties.getProperty("weather").split(" ");
                 if (weathers.length == 1) {
