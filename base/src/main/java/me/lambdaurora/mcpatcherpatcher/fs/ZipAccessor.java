@@ -71,11 +71,14 @@ public class ZipAccessor implements ResourceAccessor
     @Override
     public @NotNull Stream<Identifier> searchIn(@NotNull ResourceType type, @NotNull Identifier parent)
     {
-        return this.zip.stream().filter(entry -> entry.getName().startsWith(type.getName() + "/") && !entry.isDirectory())
+        return this.zip.stream()
+                .filter(entry -> entry.getName().startsWith(type.getName() + "/")
+                        && !entry.isDirectory()
+                        && !entry.getName().endsWith("/.DS_Store") /* Come on, don't include this in your resource packs >:( */)
                 .map(entry -> {
                     String name = entry.getName().replace(type.getName() + "/", "");
                     int first = name.indexOf("/");
-                    if (first == name.length() - 1)
+                    if (first == name.length() - 1 || first == -1)
                         return Identifier.IDENTIFIER_INVALID;
                     return new Identifier(name.substring(0, first), name.substring(first + 1));
                 })
