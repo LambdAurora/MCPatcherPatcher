@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.lambdaurora.mcpatcherpatcher.utils;
+package me.lambdaurora.mcpatcherpatcher;
 
 import me.lambdaurora.mcpatcherpatcher.Identifiers;
 import org.aperlambda.lambdacommon.Identifier;

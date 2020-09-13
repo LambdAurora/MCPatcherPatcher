@@ -24,7 +24,4 @@ java {
 
 jar {
     from "../LICENSE"
-    manifest {
-        attributes 'Main-Class': 'me.lambdaurora.mcpatcherpatcher.MCPatcherPatcherApplication'
-    }
 }

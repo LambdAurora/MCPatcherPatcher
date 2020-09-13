@@ -17,16 +17,12 @@
 
 package me.lambdaurora.mcpatcherpatcher.mcpatcher;
 
-import me.lambdaurora.mcpatcherpatcher.utils.BiomeUtils;
+import me.lambdaurora.mcpatcherpatcher.BiomeUtils;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.utils.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 /**
