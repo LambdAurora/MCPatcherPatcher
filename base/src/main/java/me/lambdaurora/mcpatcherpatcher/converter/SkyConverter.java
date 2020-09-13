@@ -149,16 +149,16 @@ public class SkyConverter extends Converter
             json.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
 
             JsonArray jsonAxis = new JsonArray();
-            if (properties.containsKey("axis")){
+            if (properties.containsKey("axis")) {
                 String[] axis = properties.getProperty("axis").split(" ");
-                for (String a: axis){
-                    jsonAxis.add((int)Float.parseFloat(a));
+                for (String a : axis) {
+                    jsonAxis.add(Float.parseFloat(a) * 180);
                 }
-            }else{
+            } else {
                 //Default South
-                jsonAxis.add(0);
-                jsonAxis.add(0);
-                jsonAxis.add(1);
+                jsonAxis.add(0f);
+                jsonAxis.add(0f);
+                jsonAxis.add(1f);
             }
             json.add("axis", jsonAxis);
 
