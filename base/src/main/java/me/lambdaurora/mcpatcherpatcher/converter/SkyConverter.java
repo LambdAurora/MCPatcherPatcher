@@ -128,6 +128,7 @@ public class SkyConverter extends Converter
             json = new JsonObject();
 
             json.addProperty("type", "textured"); // "alright only thing you need to account for is literally insert "type": "textured" into the json" -AMereBagatelle
+            json.addProperty("decorations", true); // "New thing to account for reese:  add "decorations": true on every skybox" -AMereBagatelle
             processSkyboxTexture(json, textureId, textureImage);
 
             int startFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeIn"))).intValue();
@@ -146,6 +147,20 @@ public class SkyConverter extends Converter
             json.addProperty("endFadeIn", MCPatcherParser.normalizeTickTime(endFadeIn));
             json.addProperty("startFadeOut", MCPatcherParser.normalizeTickTime(startFadeOut));
             json.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
+
+            JsonArray jsonAxis = new JsonArray();
+            if (properties.containsKey("axis")){
+                String[] axis = properties.getProperty("axis").split(" ");
+                for (String a: axis){
+                    jsonAxis.add((int)Float.parseFloat(a));
+                }
+            }else{
+                //Default South
+                jsonAxis.add(0);
+                jsonAxis.add(0);
+                jsonAxis.add(1);
+            }
+            json.add("axis", jsonAxis);
 
             if (properties.containsKey("speed")) {
                 json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
