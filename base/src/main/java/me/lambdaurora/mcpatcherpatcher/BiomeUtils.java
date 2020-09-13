@@ -17,7 +17,6 @@
 
 package me.lambdaurora.mcpatcherpatcher;
 
-import me.lambdaurora.mcpatcherpatcher.Identifiers;
 import org.aperlambda.lambdacommon.Identifier;
 import org.jetbrains.annotations.NotNull;
 
