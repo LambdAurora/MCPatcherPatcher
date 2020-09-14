@@ -74,7 +74,7 @@ public class SkyConverter extends Converter
                                     return;
                                 }
 
-                                Identifier textureId = null;
+                                Identifier textureId;
                                 if (properties.containsKey("source")) {
                                     String source = properties.getProperty("source");
                                     if (source.startsWith("./")) {
@@ -84,6 +84,11 @@ public class SkyConverter extends Converter
                                         int secondIndex = source.indexOf("/", firstIndex);
                                         String sourceNamespace = source.substring(firstIndex, secondIndex);
                                         textureId = new Identifier(sourceNamespace, source.substring(secondIndex + 1));
+                                    } else {
+                                        //There is no way you're in another ResourceType and if you are >:(
+                                        int firstIndex = source.indexOf("/") + 1;
+                                        String sourceNamespace = source.substring(0, firstIndex - 1);
+                                        textureId = new Identifier(sourceNamespace, source.substring(firstIndex));
                                     }
                                 } else {
                                     textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s.png", dimension, name));
