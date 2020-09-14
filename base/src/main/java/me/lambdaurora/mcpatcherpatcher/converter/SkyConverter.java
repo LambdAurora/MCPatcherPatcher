@@ -163,7 +163,7 @@ public class SkyConverter extends Converter
                 //Default South
                 jsonAxis.add(0f);
                 jsonAxis.add(0f);
-                jsonAxis.add(1f);
+                jsonAxis.add(180f);
             }
             json.add("axis", jsonAxis);
 
