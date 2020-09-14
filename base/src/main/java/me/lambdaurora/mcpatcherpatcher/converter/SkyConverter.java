@@ -85,7 +85,6 @@ public class SkyConverter extends Converter
                                 Properties properties = new Properties();
                                 try {
                                     properties.load(inputStream);
-                                    inputStream.close();
                                 } catch (IOException e) {
                                     failed.put(id, ErrorType.PROPERTIES_READ);
                                     return;
