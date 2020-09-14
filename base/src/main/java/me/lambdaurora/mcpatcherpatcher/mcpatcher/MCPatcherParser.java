@@ -170,14 +170,8 @@ public final class MCPatcherParser
         return minutes * 1000 / 60;
     }
 
-    public static Number normalizeTickTime(int tickTime)
+    public static int normalizeTickTime(int tickTime)
     {
-        while (tickTime < 0) {
-            tickTime += 24000;
-        }
-        while (tickTime > 24000) {
-            tickTime -= 24000;
-        }
-        return tickTime;
+        return tickTime % 24000;
     }
 }

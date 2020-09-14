@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package me.lambdaurora.mcpatcherpatcher.converter;
 
 import com.google.gson.JsonArray;
@@ -72,6 +89,16 @@ public class SkyConverter extends Converter
                                 } catch (IOException e) {
                                     failed.put(id, ErrorType.PROPERTIES_READ);
                                     return;
+                                } finally {
+                                    try {
+                                        inputStream.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                if (properties.size() == 0) {
+                                    return;
                                 }
 
                                 Identifier textureId;
@@ -100,12 +127,15 @@ public class SkyConverter extends Converter
                                     return;
                                 }
 
-                                BasicImage textureImage;
+                                BasicImage textureImage = null;
                                 try {
                                     textureImage = imageProvider.readImage(textureInputStream);
                                 } catch (IOException e) {
                                     failed.put(textureId, ErrorType.INPUTSTREAM_IO);
                                     return;
+                                } finally {
+                                    assert textureImage != null;
+                                    textureImage.close();
                                 }
 
                                 this.convert(fsbId, textureId, textureImage, properties, dimension);
@@ -126,8 +156,6 @@ public class SkyConverter extends Converter
      */
     private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties, @NotNull String dimension)
     {
-        if (properties.size() == 0)
-            return;
         JsonObject json = null;
         if (properties.size() > 1) {
             json = new JsonObject();
@@ -152,6 +180,10 @@ public class SkyConverter extends Converter
             json.addProperty("endFadeIn", MCPatcherParser.normalizeTickTime(endFadeIn));
             json.addProperty("startFadeOut", MCPatcherParser.normalizeTickTime(startFadeOut));
             json.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
+
+            if (properties.containsKey("rotate")) { //"@FlashyReese Did you forget to parse rotate= into "shouldRotate":?" -AMereBagatelle
+                json.addProperty("shouldRotate", Boolean.parseBoolean(properties.getProperty("rotate")));
+            }
 
             JsonArray jsonAxis = new JsonArray();
             if (properties.containsKey("axis")) {
@@ -197,7 +229,7 @@ public class SkyConverter extends Converter
                 }
             }
             //FSB dimensions default is overworld, how should I check for existing json?
-            json.addProperty("dimensions", dimension.equals("world0") ? "overworld" : dimension);
+            json.addProperty("dimensions", dimension.equals("world0") ? "minecraft:overworld" : dimension);
         }
 
         if (json == null)
