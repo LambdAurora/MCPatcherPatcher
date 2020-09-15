@@ -126,18 +126,17 @@ public class SkyConverter extends Converter
                                     return;
                                 }
 
-                                BasicImage textureImage = null;
+                                BasicImage textureImage;
                                 try {
                                     textureImage = imageProvider.readImage(textureInputStream);
                                 } catch (IOException e) {
                                     failed.put(textureId, ErrorType.INPUTSTREAM_IO);
                                     return;
-                                } finally {
-                                    assert textureImage != null;
-                                    textureImage.close();
                                 }
 
                                 this.convert(fsbId, textureId, textureImage, properties, dimension);
+
+                                textureImage.close();
                             }
                         }));
 
