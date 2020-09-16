@@ -74,7 +74,7 @@ public class SkyConverter extends Converter implements Closeable
                                 String dimension = matcher.group("world");
                                 String name = matcher.group("name");
 
-                                if (dimension == null || name == null)
+                                if (dimension == null || name == null || !dimension.equals("world0")) // This is temporary just don't convert any non-OW dimensions for time being
                                     return;
 
                                 Identifier fsbId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.json", FABRICSKYBOXES_PARENT, name));
