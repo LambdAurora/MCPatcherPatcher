@@ -19,6 +19,7 @@ package me.lambdaurora.mcpatcherpatcher.converter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import me.lambdaurora.mcpatcherpatcher.Closeable;
 import me.lambdaurora.mcpatcherpatcher.ErrorType;
 import me.lambdaurora.mcpatcherpatcher.ResourceType;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
@@ -44,12 +45,14 @@ import java.util.regex.Pattern;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SkyConverter extends Converter
+public class SkyConverter extends Converter implements Closeable
 {
     public static final String  FABRICSKYBOXES_NAMESPACE = "fabricskyboxes";
     public static final String  FABRICSKYBOXES_PARENT    = "sky";
     public static final String  SKY_PARENT               = "optifine/sky";
     public static final Pattern SKY_PATTERN              = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+
+    private final Map<Identifier, byte[]> cached = new HashMap<>();
 
     public SkyConverter(@NotNull ResourceAccessor input, @NotNull ResourceAccessor output)
     {
@@ -111,7 +114,7 @@ public class SkyConverter extends Converter
                                         String sourceNamespace = source.substring(firstIndex, secondIndex);
                                         textureId = new Identifier(sourceNamespace, source.substring(secondIndex + 1));
                                     } else {
-                                        //There is no way you're in another ResourceType and if you are >:(
+                                        //There is no way you're in another ResourceType and if you are >:(, this will not work inputStream still reads from ASSETS
                                         int firstIndex = source.indexOf("/") + 1;
                                         String sourceNamespace = source.substring(0, firstIndex - 1);
                                         textureId = new Identifier(sourceNamespace, source.substring(firstIndex));
@@ -234,7 +237,7 @@ public class SkyConverter extends Converter
             return;
 
         String res = LambdaConstants.GSON_PRETTY.toJson(json);
-        this.output.put(ResourceType.ASSETS, fsbId, res.getBytes());
+        this.cached.put(fsbId, res.getBytes());
     }
 
     /**
@@ -268,8 +271,22 @@ public class SkyConverter extends Converter
     private void processFaceTexture(@NotNull JsonObject json, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
     {
         Identifier faceId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
-        this.output.put(ResourceType.ASSETS, faceId, texture.getBytes());
+        if (!this.cached.containsKey(faceId))
+            this.cached.put(faceId, texture.getBytes());
         json.addProperty(String.format("texture_%s", face), faceId.toString());
+    }
+
+
+    @Override
+    public void close()
+    {
+        for (Map.Entry<Identifier, byte[]> entry : this.cached.entrySet()) {
+            Identifier identifier = entry.getKey();
+            byte[] out = entry.getValue();
+            this.output.put(ResourceType.ASSETS, identifier, out);
+        }
+
+        this.cached.clear();
     }
 
     @Override

@@ -61,6 +61,8 @@ public class MCPatcherPatcher
             Converter converter = f.apply(input, output);
             System.out.println("Applying " + converter.getName() + " conversion.");
             converter.convert(imageProvider);
+            if (converter instanceof Closeable)
+                ((Closeable)converter).close();
         });
     }
 
