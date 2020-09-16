@@ -175,69 +175,6 @@ public class MCPatcherPatcherApplication extends JFrame
         this.add(this.convert);
     }
 
-    private class Dim2i
-    {
-        private final int x;
-        private final int y;
-        private final int width;
-        private final int height;
-
-        public Dim2i(int x, int y, int width, int height)
-        {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-
-        public int getOriginX()
-        {
-            return this.x;
-        }
-
-        public int getOriginY()
-        {
-            return this.y;
-        }
-
-        public int getWidth()
-        {
-            return this.width;
-        }
-
-        public int getHeight()
-        {
-            return this.height;
-        }
-
-        public int getLimitX()
-        {
-            return this.x + this.width;
-        }
-
-        public int getLimitY()
-        {
-            return this.y + this.height;
-        }
-    }
-
-    private class CustomOutputStream extends OutputStream
-    {
-        private JTextArea textArea;
-
-        public CustomOutputStream(JTextArea textArea)
-        {
-            this.textArea = textArea;
-        }
-
-        @Override
-        public void write(int b) throws IOException
-        {
-            textArea.append(String.valueOf((char) b));
-            textArea.setCaretPosition(textArea.getDocument().getLength());
-        }
-    }
-
     public static void main(String[] args) throws IOException
     {
         if (Arrays.asList(args).isEmpty()) {
@@ -287,6 +224,69 @@ public class MCPatcherPatcherApplication extends JFrame
                 patcherInterface.convert(inputFile, outputFile);
                 System.out.printf("Output File: %s%n", outputFile.getAbsolutePath());
             }
+        }
+    }
+
+    private class CustomOutputStream extends OutputStream
+    {
+        private final JTextArea textArea;
+
+        public CustomOutputStream(JTextArea textArea)
+        {
+            this.textArea = textArea;
+        }
+
+        @Override
+        public void write(int b)
+        {
+            textArea.append(String.valueOf((char) b));
+            textArea.setCaretPosition(textArea.getDocument().getLength());
+        }
+    }
+
+    private class Dim2i
+    {
+        private final int x;
+        private final int y;
+        private final int width;
+        private final int height;
+
+        public Dim2i(int x, int y, int width, int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        public int getOriginX()
+        {
+            return this.x;
+        }
+
+        public int getOriginY()
+        {
+            return this.y;
+        }
+
+        public int getWidth()
+        {
+            return this.width;
+        }
+
+        public int getHeight()
+        {
+            return this.height;
+        }
+
+        public int getLimitX()
+        {
+            return this.x + this.width;
+        }
+
+        public int getLimitY()
+        {
+            return this.y + this.height;
         }
     }
 }
