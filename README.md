@@ -4,3 +4,6 @@
 [![GitHub license](https://img.shields.io/github/license/LambdAurora/MCPatcherPatcher?style=flat-square)](https://raw.githubusercontent.com/LambdAurora/MCPatcherPatcher/master/LICENSE)
 
 A cursed resource pack converter from MCPatcher/OptiFine format to newer and alternative formats.
+
+# Build
+Just do `./gradlew shadowRemapJar` and everything should build just fine! It will be located at `fabric/build/libs`.
