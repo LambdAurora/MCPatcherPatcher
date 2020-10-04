@@ -32,7 +32,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,8 +164,9 @@ public class SkyConverter extends Converter implements Closeable
         if (properties.size() > 1) {
             json = new JsonObject();
 
-            json.addProperty("type", "textured"); // "alright only thing you need to account for is literally insert "type": "textured" into the json" -AMereBagatelle
+            json.addProperty("type", "square-textured"); // "alright only thing you need to account for is literally insert "type": "textured" into the json" -AMereBagatelle
             json.addProperty("decorations", true); // "New thing to account for reese:  add "decorations": true on every skybox" -AMereBagatelle
+            json.addProperty("shouldBlend", false);
             processSkyboxTexture(json, textureId, textureImage);
 
             int startFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeIn"))).intValue();
@@ -250,14 +254,13 @@ public class SkyConverter extends Converter implements Closeable
     private void processSkyboxTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull BasicImage textureImage)
     {
         String textureName = textureId.getName().substring(textureId.getName().lastIndexOf("/") + 1, textureId.getName().lastIndexOf("."));
-
         int scale = textureImage.getHeight() / 2;
-        processFaceTexture(json, textureName, "top", textureImage.getSubImage(scale, 0, scale, scale));
-        processFaceTexture(json, textureName, "bottom", textureImage.getSubImage(0, 0, scale, scale));
-        processFaceTexture(json, textureName, "north", textureImage.getSubImage(0, scale, scale, scale));
-        processFaceTexture(json, textureName, "south", textureImage.getSubImage(scale * 2, scale, scale, scale));
-        processFaceTexture(json, textureName, "east", textureImage.getSubImage(scale, scale, scale, scale));
-        processFaceTexture(json, textureName, "west", textureImage.getSubImage(scale * 2, 0, scale, scale));
+        this.processFaceTexture(json, textureName, "top", textureImage.getSubImage(scale, 0, scale, scale));
+        this.processFaceTexture(json, textureName, "bottom", textureImage.getSubImage(0, 0, scale, scale));
+        this.processFaceTexture(json, textureName, "north", textureImage.getSubImage(0, scale, scale, scale));
+        this.processFaceTexture(json, textureName, "south", textureImage.getSubImage(scale * 2, scale, scale, scale));
+        this.processFaceTexture(json, textureName, "east", textureImage.getSubImage(scale, scale, scale, scale));
+        this.processFaceTexture(json, textureName, "west", textureImage.getSubImage(scale * 2, 0, scale, scale));
     }
 
     /**
