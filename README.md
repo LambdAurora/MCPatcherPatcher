@@ -11,6 +11,11 @@ You can use this project in one of two ways:
 1. Runtime conversion.  This is the easiest, and only requires the jar to be put in the mods folder.  It will not output any files.
 2. Run as its own jar.  This will output the converted files, so that you can modify them.
 
+This mod does not have the ability to display the resource packs, simply just to convert them into formats for other Fabric mods.
+The following list is all the mods that MCPatcherPatcher can convert to.
+1. [FabricSkyboxes](https://www.curseforge.com/minecraft/mc-mods/fabricskyboxes).  Adds Skybox support.
+2. [Varied Mob Textures](https://www.curseforge.com/minecraft/mc-mods/varied-mob-textures).  Adds CET (custom entity texture) and RET (random entity texture) support.
+
 At the time of writing, this project does not have any releases.  If you would like to use this, follow the instructions below.
 
 # Build
