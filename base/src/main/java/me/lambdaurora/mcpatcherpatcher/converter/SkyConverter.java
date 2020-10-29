@@ -52,8 +52,10 @@ public class SkyConverter extends Converter implements Closeable
 {
     public static final String  FABRICSKYBOXES_NAMESPACE = "fabricskyboxes";
     public static final String  FABRICSKYBOXES_PARENT    = "sky";
-    public static final String  SKY_PARENT               = "optifine/sky";
-    public static final Pattern SKY_PATTERN              = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+    public static final String  OPTIFINE_SKY_PARENT      = "optifine/sky";
+    public static final Pattern OPTIFINE_SKY_PATTERN     = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+    public static final String  MCPATCHER_SKY_PARENT     = "mcpatcher/sky";
+    public static final Pattern MCPATCHER_SKY_PATTERN    = Pattern.compile("mcpatcher/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
 
     private final Map<Identifier, byte[]> cached = new HashMap<>();
 
@@ -66,21 +68,36 @@ public class SkyConverter extends Converter implements Closeable
     public @NotNull Map<Identifier, ErrorType> convert(@NotNull ImageProvider imageProvider)
     {
         Map<Identifier, ErrorType> failed = new HashMap<>();
+        this.convertNamespace(imageProvider, failed, OPTIFINE_SKY_PARENT, OPTIFINE_SKY_PATTERN);
+        this.convertNamespace(imageProvider, failed, MCPATCHER_SKY_PARENT, MCPATCHER_SKY_PATTERN);
+        return failed;
+    }
 
+    /**
+     * Converts a specific namespace
+     *
+     * @param imageProvider The Image Provider
+     * @param failed        The Identifier-ErrorType Map
+     * @param skyParent     The parent namespace
+     * @param pattern       The pattern for namespace
+     */
+    private void convertNamespace(ImageProvider imageProvider, Map<Identifier, ErrorType> failed, String skyParent, Pattern pattern)
+    {
         this.input.getNamespaces(ResourceType.ASSETS).stream()
-                .map(namespace -> new Identifier(namespace, SKY_PARENT))
+                .map(namespace -> new Identifier(namespace, skyParent))
                 .forEach(parent -> this.input.searchIn(ResourceType.ASSETS, parent)
                         .filter(id -> id.getName().endsWith(".properties"))
                         .forEach(id -> {
-                            Matcher matcher = SKY_PATTERN.matcher(id.getName());
+                            Matcher matcher = pattern.matcher(id.getName());
                             if (matcher.find()) {
                                 String dimension = matcher.group("world");
                                 String name = matcher.group("name");
 
-                                if (dimension == null || name == null || !dimension.equals("world0")) // This is temporary just don't convert any non-OW dimensions for time being
+                                if (dimension == null || name == null)
                                     return;
 
-                                Identifier fsbId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.json", FABRICSKYBOXES_PARENT, name));
+                                Identifier fsbId = new Identifier(FABRICSKYBOXES_NAMESPACE,
+                                        String.format("%s/%s_%s.json", FABRICSKYBOXES_PARENT, dimension.equals("world0") ? "overworld" : dimension, name));
 
                                 InputStream inputStream = this.input.getInputStream(ResourceType.ASSETS, id);
                                 if (inputStream == null) {
@@ -145,8 +162,6 @@ public class SkyConverter extends Converter implements Closeable
                                 textureImage.close();
                             }
                         }));
-
-        return failed;
     }
 
     /**
