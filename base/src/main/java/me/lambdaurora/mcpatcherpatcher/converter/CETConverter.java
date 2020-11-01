@@ -90,6 +90,12 @@ public class CETConverter extends Converter
                                 } catch (IOException e) {
                                     failed.put(id, ErrorType.PROPERTIES_READ);
                                     return;
+                                } finally {
+                                    try {
+                                        inputStream.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
 
                                 List<RandomEntityRule> rules = new ArrayList<>();
