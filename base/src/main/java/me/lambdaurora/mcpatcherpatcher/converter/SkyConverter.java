@@ -90,14 +90,14 @@ public class SkyConverter extends Converter implements Closeable
                         .forEach(id -> {
                             Matcher matcher = pattern.matcher(id.getName());
                             if (matcher.find()) {
-                                String dimension = matcher.group("world");
+                                String world = matcher.group("world");
                                 String name = matcher.group("name");
 
-                                if (dimension == null || name == null)
+                                if (world == null || name == null)
                                     return;
 
                                 Identifier fsbId = new Identifier(FABRICSKYBOXES_NAMESPACE,
-                                        String.format("%s/%s_%s.json", FABRICSKYBOXES_PARENT, dimension.equals("world0") ? "overworld" : dimension, name));
+                                        String.format("%s/%s_%s.json", FABRICSKYBOXES_PARENT, world.equals("world0") ? "overworld" : world, name));
 
                                 InputStream inputStream = this.input.getInputStream(ResourceType.ASSETS, id);
                                 if (inputStream == null) {
@@ -127,7 +127,7 @@ public class SkyConverter extends Converter implements Closeable
                                 if (properties.containsKey("source")) {
                                     String source = properties.getProperty("source");
                                     if (source.startsWith("./")) {
-                                        textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s", dimension, source.substring(2)));
+                                        textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s", world, source.substring(2)));
                                     } else if (source.startsWith("assets/")) {
                                         int firstIndex = source.indexOf("/") + 1;
                                         int secondIndex = source.indexOf("/", firstIndex);
@@ -140,7 +140,7 @@ public class SkyConverter extends Converter implements Closeable
                                         textureId = new Identifier(sourceNamespace, source.substring(firstIndex));
                                     }
                                 } else {
-                                    textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s.png", dimension, name));
+                                    textureId = new Identifier(id.getNamespace(), parent.getName() + String.format("/%s/%s.png", world, name));
                                 }
 
                                 InputStream textureInputStream = this.input.getInputStream(ResourceType.ASSETS, textureId);
@@ -157,7 +157,7 @@ public class SkyConverter extends Converter implements Closeable
                                     return;
                                 }
 
-                                this.convert(fsbId, textureId, textureImage, properties, dimension);
+                                this.convert(fsbId, textureId, textureImage, properties, world);
 
                                 textureImage.close();
                             }
@@ -171,85 +171,31 @@ public class SkyConverter extends Converter implements Closeable
      * @param textureId    The texture file identifier.
      * @param textureImage The texture BasicImage
      * @param properties   The MCPatcher properties file.
-     * @param dimension    The dimension name
+     * @param world        The world name
      */
-    private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties, @NotNull String dimension)
+    private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties, @NotNull String world)
     {
         JsonObject json = null;
         if (properties.size() > 1) {
             json = new JsonObject();
 
-            json.addProperty("type", "square-textured"); // "alright only thing you need to account for is literally insert "type": "textured" into the json" -AMereBagatelle
-            json.addProperty("decorations", true); // "New thing to account for reese:  add "decorations": true on every skybox" -AMereBagatelle
-            json.addProperty("shouldBlend", false);
-            processSkyboxTexture(json, textureId, textureImage);
+            json.addProperty("schemaVersion", 2);
+            json.addProperty("type", "square-textured");
 
-            int startFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeIn"))).intValue();
-            int endFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("endFadeIn"))).intValue();
-            int endFadeOut = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("endFadeOut"))).intValue();
-            int startFadeOut;
-            if (properties.containsKey("startFadeOut")) {
-                startFadeOut = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeOut"))).intValue();
-            } else {
-                startFadeOut = endFadeOut - (endFadeIn - startFadeIn);
-                if (startFadeIn <= startFadeOut && endFadeIn >= startFadeOut) {
-                    startFadeOut = endFadeOut;
-                }
-            }
-            json.addProperty("startFadeIn", MCPatcherParser.normalizeTickTime(startFadeIn));
-            json.addProperty("endFadeIn", MCPatcherParser.normalizeTickTime(endFadeIn));
-            json.addProperty("startFadeOut", MCPatcherParser.normalizeTickTime(startFadeOut));
-            json.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
+            json.addProperty("blend", false);
 
-            if (properties.containsKey("rotate")) { //"@FlashyReese Did you forget to parse rotate= into "shouldRotate":?" -AMereBagatelle
-                json.addProperty("shouldRotate", Boolean.parseBoolean(properties.getProperty("rotate")));
-            }
+            JsonObject texturesObject = new JsonObject();
+            this.processSkyboxTexture(texturesObject, textureId, textureImage);
+            json.add("textures", texturesObject);
 
-            JsonArray jsonAxis = new JsonArray();
-            if (properties.containsKey("axis")) {
-                String[] axis = properties.getProperty("axis").split(" ");
-                for (String a : axis) {
-                    jsonAxis.add(Float.parseFloat(a) * 180);
-                }
-            } else {
-                //Default South
-                jsonAxis.add(0f);
-                jsonAxis.add(0f);
-                jsonAxis.add(180f);
-            }
-            json.add("axis", jsonAxis);
+            JsonObject propertiesObject = new JsonObject();
+            this.processProperties(propertiesObject, properties);
+            json.add("properties", propertiesObject);
 
-            if (properties.containsKey("speed")) {
-                json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
-            }
+            JsonObject conditionsObject = new JsonObject();
+            this.processConditions(conditionsObject, properties, world);
+            json.add("conditions", conditionsObject);
 
-            if (properties.containsKey("weather")) {
-                String[] weathers = properties.getProperty("weather").split(" ");
-                if (weathers.length == 1) {
-                    json.addProperty("weather", weathers[0]);
-                } else {
-                    JsonArray jsonWeather = new JsonArray();
-                    for (String weather : weathers) {
-                        jsonWeather.add(weather);
-                    }
-                    json.add("weather", jsonWeather);
-                }
-            }
-
-            if (properties.containsKey("biomes")) {
-                String[] biomes = properties.getProperty("biomes").split(" ");
-                if (biomes.length == 1) {
-                    json.addProperty("biomes", biomes[0]);
-                } else {
-                    JsonArray jsonBiomes = new JsonArray();
-                    for (String biome : biomes) {
-                        jsonBiomes.add(biome);
-                    }
-                    json.add("biomes", jsonBiomes);
-                }
-            }
-            //FSB dimensions default is overworld, how should I check for existing json?
-            json.addProperty("dimensions", dimension.equals("world0") ? "minecraft:overworld" : dimension);
         }
 
         if (json == null)
@@ -291,9 +237,97 @@ public class SkyConverter extends Converter implements Closeable
         Identifier faceId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
         if (!this.cached.containsKey(faceId))
             this.cached.put(faceId, texture.getBytes());
-        json.addProperty(String.format("texture_%s", face), faceId.toString());
+        json.addProperty(face, faceId.toString());
     }
 
+    /**
+     * Converts MCPatcher Sky Properties to FabricSkyboxes properties
+     *
+     * @param json       The properties object for FabricSkyboxes
+     * @param properties The sky properties
+     */
+    private void processProperties(@NotNull JsonObject json, @NotNull Properties properties)
+    {
+        JsonObject fade = new JsonObject();
+        // Convert fade
+        int startFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeIn"))).intValue();
+        int endFadeIn = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("endFadeIn"))).intValue();
+        int endFadeOut = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("endFadeOut"))).intValue();
+        int startFadeOut;
+        if (properties.containsKey("startFadeOut")) {
+            startFadeOut = Objects.requireNonNull(MCPatcherParser.toTickTime(properties.getProperty("startFadeOut"))).intValue();
+        } else {
+            startFadeOut = endFadeOut - (endFadeIn - startFadeIn);
+            if (startFadeIn <= startFadeOut && endFadeIn >= startFadeOut) {
+                startFadeOut = endFadeOut;
+            }
+        }
+        fade.addProperty("startFadeIn", MCPatcherParser.normalizeTickTime(startFadeIn));
+        fade.addProperty("endFadeIn", MCPatcherParser.normalizeTickTime(endFadeIn));
+        fade.addProperty("startFadeOut", MCPatcherParser.normalizeTickTime(startFadeOut));
+        fade.addProperty("endFadeOut", MCPatcherParser.normalizeTickTime(endFadeOut));
+
+        json.add("fade", fade);
+
+        // Convert rotation
+        if (properties.containsKey("rotate")) { //"@FlashyReese Did you forget to parse rotate= into "shouldRotate":?" -AMereBagatelle
+            json.addProperty("shouldRotate", Boolean.parseBoolean(properties.getProperty("rotate")));
+        }
+
+        JsonObject rotation = new JsonObject();
+        JsonArray jsonAxis = new JsonArray();
+        if (properties.containsKey("axis")) {
+            String[] axis = properties.getProperty("axis").split(" ");
+            for (String a : axis) {
+                jsonAxis.add(Float.parseFloat(a) * 180);
+            }
+        } else {
+            //Default South
+            jsonAxis.add(0f);
+            jsonAxis.add(0f);
+            jsonAxis.add(180f);
+        }
+        rotation.add("axis", jsonAxis);
+
+        json.add("rotation", rotation);
+
+        if (properties.containsKey("speed")) {
+            json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
+        }
+    }
+
+
+    /**
+     * Converts properties into conditions object
+     *
+     * @param json       The conditions object
+     * @param properties The sky properties
+     * @param world      The world string
+     */
+    private void processConditions(@NotNull JsonObject json, @NotNull Properties properties, @NotNull String world)
+    {
+        if (properties.containsKey("weather")) {
+            String[] weathers = properties.getProperty("weather").split(" ");
+            JsonArray jsonWeather = new JsonArray();
+            for (String weather : weathers) {
+                jsonWeather.add(weather);
+            }
+            json.add("weather", jsonWeather);
+        }
+
+        if (properties.containsKey("biomes")) {
+            String[] biomes = properties.getProperty("biomes").split(" ");
+            JsonArray jsonBiomes = new JsonArray();
+            for (String biome : biomes) {
+                jsonBiomes.add(biome);
+            }
+            json.add("biomes", jsonBiomes);
+        }
+
+        JsonArray worlds = new JsonArray();
+        worlds.add(world.equals("world0") ? "minecraft:overworld" : world);
+        json.add("worlds", worlds);
+    }
 
     @Override
     public void close()
