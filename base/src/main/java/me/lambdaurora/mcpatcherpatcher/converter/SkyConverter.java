@@ -1,18 +1,18 @@
 /*
- *  Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
+ * Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package me.lambdaurora.mcpatcherpatcher.converter;
@@ -50,12 +50,12 @@ import java.util.regex.Pattern;
  */
 public class SkyConverter extends Converter implements Closeable
 {
-    public static final String  FABRICSKYBOXES_NAMESPACE = "fabricskyboxes";
-    public static final String  FABRICSKYBOXES_PARENT    = "sky";
-    public static final String  OPTIFINE_SKY_PARENT      = "optifine/sky";
-    public static final Pattern OPTIFINE_SKY_PATTERN     = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
-    public static final String  MCPATCHER_SKY_PARENT     = "mcpatcher/sky";
-    public static final Pattern MCPATCHER_SKY_PATTERN    = Pattern.compile("mcpatcher/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+    public static final String FABRICSKYBOXES_NAMESPACE = "fabricskyboxes";
+    public static final String FABRICSKYBOXES_PARENT = "sky";
+    public static final String OPTIFINE_SKY_PARENT = "optifine/sky";
+    public static final Pattern OPTIFINE_SKY_PATTERN = Pattern.compile("optifine/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
+    public static final String MCPATCHER_SKY_PARENT = "mcpatcher/sky";
+    public static final Pattern MCPATCHER_SKY_PATTERN = Pattern.compile("mcpatcher/sky/(?<world>\\w+)/(?<name>\\w+).properties$");
 
     private final Map<Identifier, byte[]> cached = new HashMap<>();
 
@@ -77,9 +77,9 @@ public class SkyConverter extends Converter implements Closeable
      * Converts a specific namespace
      *
      * @param imageProvider The Image Provider
-     * @param failed        The Identifier-ErrorType Map
-     * @param skyParent     The parent namespace
-     * @param pattern       The pattern for namespace
+     * @param failed The Identifier-ErrorType Map
+     * @param skyParent The parent namespace
+     * @param pattern The pattern for namespace
      */
     private void convertNamespace(ImageProvider imageProvider, Map<Identifier, ErrorType> failed, String skyParent, Pattern pattern)
     {
@@ -167,11 +167,11 @@ public class SkyConverter extends Converter implements Closeable
     /**
      * Converts one MCPatcher file to FSB format.
      *
-     * @param fsbId        The FSB metadata file identifier.
-     * @param textureId    The texture file identifier.
+     * @param fsbId The FSB metadata file identifier.
+     * @param textureId The texture file identifier.
      * @param textureImage The texture BasicImage
-     * @param properties   The MCPatcher properties file.
-     * @param world        The world name
+     * @param properties The MCPatcher properties file.
+     * @param world The world name
      */
     private void convert(@NotNull Identifier fsbId, @NotNull Identifier textureId, @NotNull BasicImage textureImage, @NotNull Properties properties, @NotNull String world)
     {
@@ -208,8 +208,8 @@ public class SkyConverter extends Converter implements Closeable
     /**
      * Converts Optifine skybox textures to FSB format.
      *
-     * @param json         The FSB JSON file.
-     * @param textureId    The Skybox Texture Identifier file.
+     * @param json The FSB JSON file.
+     * @param textureId The Skybox Texture Identifier file.
      * @param textureImage The Skybox Texture file.
      */
     private void processSkyboxTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull BasicImage textureImage)
@@ -227,10 +227,10 @@ public class SkyConverter extends Converter implements Closeable
     /**
      * Generates new face textures.
      *
-     * @param json        The FSB JSON file.
+     * @param json The FSB JSON file.
      * @param textureName The Name of Skybox Texture file.
-     * @param face        The Name of Texture Face.
-     * @param texture     The Texture Face file.
+     * @param face The Name of Texture Face.
+     * @param texture The Texture Face file.
      */
     private void processFaceTexture(@NotNull JsonObject json, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
     {
@@ -243,7 +243,7 @@ public class SkyConverter extends Converter implements Closeable
     /**
      * Converts MCPatcher Sky Properties to FabricSkyboxes properties
      *
-     * @param json       The properties object for FabricSkyboxes
+     * @param json The properties object for FabricSkyboxes
      * @param properties The sky properties
      */
     private void processProperties(@NotNull JsonObject json, @NotNull Properties properties)
@@ -300,9 +300,9 @@ public class SkyConverter extends Converter implements Closeable
     /**
      * Converts properties into conditions object
      *
-     * @param json       The conditions object
+     * @param json The conditions object
      * @param properties The sky properties
-     * @param world      The world string
+     * @param world The world string
      */
     private void processConditions(@NotNull JsonObject json, @NotNull Properties properties, @NotNull String world)
     {

@@ -1,18 +1,18 @@
 /*
- *  Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
+ * Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package me.lambdaurora.mcpatcherpatcher.fabric.resource;
@@ -21,10 +21,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.lambdaurora.mcpatcherpatcher.fabric.util.IdentifierUtils;
 import me.lambdaurora.mcpatcherpatcher.fs.ResourceAccessor;
+import net.minecraft.SharedConstants;
 import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.ResourceMetadataReader;
 import net.minecraft.util.Identifier;
+import org.apache.commons.compress.utils.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,8 +49,8 @@ import java.util.stream.Stream;
  */
 public class MCPPResourcePack implements ResourcePack, ResourceAccessor
 {
-    private final List<String>                     namespaces = new ArrayList<>();
-    private final Object2ObjectMap<String, byte[]> resources  = new Object2ObjectOpenHashMap<>();
+    private final List<String> namespaces = new ArrayList<>();
+    private final Object2ObjectMap<String, byte[]> resources = new Object2ObjectOpenHashMap<>();
 
     @Override
     public boolean put(@NotNull String resource, byte[] data)
@@ -68,6 +71,10 @@ public class MCPPResourcePack implements ResourcePack, ResourceAccessor
     @Override
     public InputStream openRoot(String fileName) throws IOException
     {
+        InputStream defaultStream = this.openDefault(fileName);
+        if (defaultStream != null)
+            return defaultStream;
+
         byte[] data;
         if ((data = this.resources.get(fileName)) != null) {
             return new ByteArrayInputStream(data);
@@ -78,9 +85,24 @@ public class MCPPResourcePack implements ResourcePack, ResourceAccessor
     @Override
     public @Nullable InputStream getInputStream(@NotNull String path)
     {
+        InputStream defaultStream = this.openDefault(path);
+        if (defaultStream != null)
+            return defaultStream;
+
         if (!this.resources.containsKey(path))
             return null;
         return new ByteArrayInputStream(this.resources.get(path));
+    }
+
+    private @Nullable InputStream openDefault(String path)
+    {
+        if (path.equals("pack.mcmeta")) {
+            return IOUtils.toInputStream(
+                    String.format("{\"pack\":{\"pack_format\":%d,\"description\":\"MCPatcherPatcher runtime resource pack.\"}}",
+                            SharedConstants.getGameVersion().getPackVersion()),
+                    Charsets.UTF_8);
+        }
+        return null;
     }
 
     @Override

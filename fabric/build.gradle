@@ -69,6 +69,11 @@ java {
 
 jar {
     from "../LICENSE"
+    manifest {
+        attributes(
+                'Main-Class': project(':base').mainClassName
+        )
+    }
 }
 
 task shadowJar(type: Jar) {
@@ -88,6 +93,12 @@ task shadowJar(type: Jar) {
         configurations.shadow.collect {
             it.isDirectory() ? it : zipTree(it)
         }
+    }
+
+    manifest {
+        attributes(
+                'Main-Class': project(':base').mainClassName
+        )
     }
 }
 
