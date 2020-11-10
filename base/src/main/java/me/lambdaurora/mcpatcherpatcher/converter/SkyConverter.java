@@ -182,7 +182,7 @@ public class SkyConverter extends Converter implements Closeable
             json.addProperty("schemaVersion", 2);
             json.addProperty("type", "square-textured");
 
-            json.addProperty("blend", false);
+            json.addProperty("blend", true);
 
             JsonObject texturesObject = new JsonObject();
             this.processSkyboxTexture(texturesObject, textureId, textureImage);
