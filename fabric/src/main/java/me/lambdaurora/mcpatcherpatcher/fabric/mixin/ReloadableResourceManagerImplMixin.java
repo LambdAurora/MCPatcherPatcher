@@ -32,16 +32,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Stream;
 
 @Mixin(ReloadableResourceManagerImpl.class)
-public abstract class ReloadableResourceManagerImplMixin implements ReloadableResourceManager
-{
+public abstract class ReloadableResourceManagerImplMixin implements ReloadableResourceManager {
     @Shadow
     @Final
     private ResourceType type;
 
     @Shadow
     public abstract void addPack(ResourcePack resourcePack);
+
+    @Shadow
+    public abstract Stream<ResourcePack> streamResourcePacks();
 
     @Inject(
             method = "beginMonitoredReload",
@@ -51,8 +54,7 @@ public abstract class ReloadableResourceManagerImplMixin implements ReloadableRe
                     shift = At.Shift.BEFORE
             )
     )
-    private void onPostReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReloadMonitor> cir)
-    {
+    private void onPostReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReloadMonitor> cir) {
         if (this.type == ResourceType.SERVER_DATA)
             return;
 
