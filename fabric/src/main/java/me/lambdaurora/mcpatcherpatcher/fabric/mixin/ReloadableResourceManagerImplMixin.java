@@ -1,18 +1,18 @@
 /*
- *  Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
+ * Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package me.lambdaurora.mcpatcherpatcher.fabric.mixin;
@@ -32,16 +32,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Stream;
 
 @Mixin(ReloadableResourceManagerImpl.class)
-public abstract class ReloadableResourceManagerImplMixin implements ReloadableResourceManager
-{
+public abstract class ReloadableResourceManagerImplMixin implements ReloadableResourceManager {
     @Shadow
     @Final
     private ResourceType type;
 
     @Shadow
     public abstract void addPack(ResourcePack resourcePack);
+
+    @Shadow
+    public abstract Stream<ResourcePack> streamResourcePacks();
 
     @Inject(
             method = "beginMonitoredReload",
@@ -51,8 +54,7 @@ public abstract class ReloadableResourceManagerImplMixin implements ReloadableRe
                     shift = At.Shift.BEFORE
             )
     )
-    private void onPostReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReloadMonitor> cir)
-    {
+    private void onPostReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReloadMonitor> cir) {
         if (this.type == ResourceType.SERVER_DATA)
             return;
 

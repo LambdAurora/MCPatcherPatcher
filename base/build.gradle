@@ -1,10 +1,12 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'application'
 }
 
 version = project.version
 archivesBaseName = project.archives_base_name
+mainClassName = 'me.lambdaurora.mcpatcherpatcher.MCPatcherPatcherApplication'
 
 dependencies {
     api("org.aperlambda:lambdajcommon:1.8.0") {
@@ -24,7 +26,7 @@ java {
 
 jar {
     from "../LICENSE"
-
+    
     manifest {
         attributes(
                 'Main-Class': 'me.lambdaurora.mcpatcherpatcher.MCPatcherPatcherApplication'

@@ -1,18 +1,18 @@
 /*
- *  Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
+ * Copyright (c) 2020 LambdAurora <aurora42lambda@gmail.com>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package me.lambdaurora.mcpatcherpatcher.fs;
@@ -44,7 +44,7 @@ public interface ResourceAccessor
     /**
      * Returns whether the specified resource exists or not.
      *
-     * @param type       The resource type.
+     * @param type The resource type.
      * @param identifier The resource identifier.
      * @return True if the specified resource exists, else false.
      */
@@ -53,7 +53,7 @@ public interface ResourceAccessor
     /**
      * Returns a stream of resource identifiers present in the specified parent folder.
      *
-     * @param type   The resource type.
+     * @param type The resource type.
      * @param parent The parent resource identifier.
      * @return The stream of identifiers.
      */
@@ -62,7 +62,7 @@ public interface ResourceAccessor
     /**
      * Returns an input stream from the specified resource.
      *
-     * @param type       The resource type.
+     * @param type The resource type.
      * @param identifier The resource identifier.
      * @return An input stream if the resource exists and can be opened, else null.
      * @see #getInputStream(String)
@@ -92,9 +92,9 @@ public interface ResourceAccessor
     /**
      * Puts the data in the specified resource.
      *
-     * @param type       The resource type.
+     * @param type The resource type.
      * @param identifier The resource identifier.
-     * @param out        The data.
+     * @param out The data.
      * @return True if the data has been successfully put, else false.
      * @see #put(String, byte[])
      */
@@ -107,7 +107,7 @@ public interface ResourceAccessor
      * Puts the data in the specified resource.
      *
      * @param path The resource path.
-     * @param out  The data.
+     * @param out The data.
      * @return True if the data has been successfully put, else false.
      * @see #put(ResourceType, Identifier, byte[])
      */
@@ -117,8 +117,8 @@ public interface ResourceAccessor
      * Copies the resource from this accessor to the specified accessor.
      *
      * @param outAccessor The output resource accessor.
-     * @param type        The resource type.
-     * @param identifier  The resource identifier.
+     * @param type The resource type.
+     * @param identifier The resource identifier.
      * @see #copy(ResourceAccessor, String)
      */
     default void copy(@NotNull ResourceAccessor outAccessor, @NotNull ResourceType type, @NotNull Identifier identifier)
@@ -155,7 +155,7 @@ public interface ResourceAccessor
      * Copies the resource from this accessor to the specified accessor.
      *
      * @param outAccessor The output resource accessor.
-     * @param path        The resource path.
+     * @param path The resource path.
      * @see #copy(ResourceAccessor, ResourceType, Identifier)
      */
     default void copy(@NotNull ResourceAccessor outAccessor, @NotNull String path)

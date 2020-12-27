@@ -1,12 +1,14 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'net.minecrell.licenser' version '0.4.1'
 }
 
 version = "${project.version}"
 archivesBaseName = project.archives_base_name
 
-allprojects {
+allprojects { subProject ->
+    subProject.apply plugin: 'net.minecrell.licenser'
     group = project.maven_group
 
     repositories {
@@ -16,5 +18,10 @@ allprojects {
             name = "AperLambda"
             url = 'https://aperlambda.github.io/maven'
         }
+    }
+
+    license {
+        header file("$rootDir/HEADER")
+        include '**/*.java'
     }
 }
