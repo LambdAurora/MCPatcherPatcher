@@ -24,4 +24,14 @@ java {
 
 jar {
     from "../LICENSE"
+
+    manifest {
+        attributes(
+                'Main-Class': 'me.lambdaurora.mcpatcherpatcher.MCPatcherPatcherApplication'
+        )
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
