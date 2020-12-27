@@ -38,8 +38,9 @@ dependencies {
         exclude group: 'net.fabricmc.fabric-api'
     }
 
-    api project(":base")
-    shadowInternal project(":base")
+    shadow(project(":base")) {
+        exclude group: 'org.aperlambda'
+    }
     shadow("org.aperlambda:lambdajcommon:1.8.1") {
         // Minecraft already has all that google crap.
         exclude group: 'com.google.code.gson'
@@ -76,30 +77,13 @@ jar {
     }
 }
 
-task shadowJar(type: Jar) {
+shadowJar {
     dependsOn(project(":base").jar)
-    archiveClassifier.set("dev")
+    configurations = [project.configurations.shadow]
+    archiveClassifier.set('dev')
 
-    from sourceSets.main.output
-
-    from {
-        configurations.shadowInternal.filter {
-            it.getName().contains("mcpatcherpatcher")
-        }.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    from {
-        configurations.shadow.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-
-    manifest {
-        attributes(
-                'Main-Class': project(':base').mainClassName
-        )
-    }
+    relocate 'org.aperlambda.lambdacommon', 'me.lambdaurora.mcpatcherpatcher.shadow.lambdacommon'
+    relocate 'com.google.gson', 'me.lambdaurora.mcpatcherpatcher.shadow.gson'
 }
 
 task shadowRemapJar(type: RemapJarTask) {
@@ -109,3 +93,5 @@ task shadowRemapJar(type: RemapJarTask) {
     archiveName = "${archivesBaseName}-${version}.jar"
     addNestedDependencies = true
 }
+
+build.dependsOn shadowRemapJar

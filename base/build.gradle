@@ -8,13 +8,17 @@ version = project.version
 archivesBaseName = project.archives_base_name
 mainClassName = 'me.lambdaurora.mcpatcherpatcher.MCPatcherPatcherApplication'
 
+configurations {
+    api.extendsFrom shadowInclude
+}
+
 dependencies {
-    api("org.aperlambda:lambdajcommon:1.8.0") {
+    shadowInclude("org.aperlambda:lambdajcommon:1.8.0") {
         exclude group: 'com.google.code.gson'
         exclude group: 'com.google.guava'
     }
 
-    api("com.google.code.gson:gson:2.8.6")
+    shadowInclude("com.google.code.gson:gson:2.8.6")
 }
 
 java {
@@ -31,4 +35,8 @@ jar {
                 'Main-Class': mainClassName
         )
     }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowInclude]
 }
