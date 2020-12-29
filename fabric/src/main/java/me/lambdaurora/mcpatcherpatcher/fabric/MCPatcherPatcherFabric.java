@@ -41,11 +41,12 @@ public class MCPatcherPatcherFabric implements ClientModInitializer {
     public static final String NAMESPACE = "mcpatcherpatcher";
     public static final net.minecraft.util.Identifier DUMMY_ID = new net.minecraft.util.Identifier(NAMESPACE, "dummy");
     public static final Path DEBUG_PATH = FileSystems.getDefault().getPath("debug", NAMESPACE);
+    private static final String DEBUG_PROPERTY = System.getProperty("mcpatcherpatcher-debug");
     private static MCPatcherPatcherFabric INSTANCE;
     public final Logger logger = LogManager.getLogger(NAMESPACE);
     public final MCPatcherPatcher main = new MCPatcherPatcher(new NativeImageProvider());
     public MCPPResourcePack resourcePack;
-    private boolean debug = FabricLoader.getInstance().isDevelopmentEnvironment() || System.getProperty("mcpatcherpatcher-debug").equals("true");
+    private boolean debug = FabricLoader.getInstance().isDevelopmentEnvironment() || (DEBUG_PROPERTY != null && DEBUG_PROPERTY.equals("true"));
 
     @Override
     public void onInitializeClient() {
