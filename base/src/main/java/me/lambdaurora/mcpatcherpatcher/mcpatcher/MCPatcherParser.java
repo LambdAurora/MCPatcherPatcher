@@ -166,8 +166,7 @@ public final class MCPatcherParser
             return null;
         int h = Integer.parseInt(parts[0]);
         int m = Integer.parseInt(parts[1]);
-        int minutes = (h + (h >= 6 ? -6 : 18)) * 60 + m;
-        return minutes * 1000 / 60;
+        return h * 1000 + (m / 0.06F) - 6000;
     }
 
     public static int normalizeTickTime(int tickTime)
