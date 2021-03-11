@@ -172,6 +172,10 @@ public final class MCPatcherParser
 
     public static int normalizeTickTime(int tickTime)
     {
-        return tickTime % 24000;
+        int result = tickTime % 24000;
+        if (result < 0) {
+            result += 24000;
+        }
+        return result;
     }
 }
