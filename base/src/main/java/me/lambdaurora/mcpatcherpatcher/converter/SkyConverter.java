@@ -180,13 +180,11 @@ public class SkyConverter extends Converter implements Closeable
             json = new JsonObject();
 
             json.addProperty("schemaVersion", 2);
-            json.addProperty("type", "square-textured");
+            json.addProperty("type", "single-sprite-square-textured");
 
             json.addProperty("blend", properties.containsKey("blend"));
 
-            JsonObject texturesObject = new JsonObject();
-            this.processSkyboxTexture(texturesObject, textureId, textureImage);
-            json.add("textures", texturesObject);
+            this.processSkyboxTexture(json, textureId, textureImage);
 
             JsonObject propertiesObject = new JsonObject();
             this.processProperties(propertiesObject, properties);
@@ -215,29 +213,10 @@ public class SkyConverter extends Converter implements Closeable
     private void processSkyboxTexture(@NotNull JsonObject json, @NotNull Identifier textureId, @NotNull BasicImage textureImage)
     {
         String textureName = textureId.getName().substring(textureId.getName().lastIndexOf("/") + 1, textureId.getName().lastIndexOf("."));
-        int scale = textureImage.getHeight() / 2;
-        this.processFaceTexture(json, textureName, "top", textureImage.getSubImage(scale, 0, scale, scale));
-        this.processFaceTexture(json, textureName, "bottom", textureImage.getSubImage(0, 0, scale, scale));
-        this.processFaceTexture(json, textureName, "north", textureImage.getSubImage(0, scale, scale, scale));
-        this.processFaceTexture(json, textureName, "south", textureImage.getSubImage(scale * 2, scale, scale, scale));
-        this.processFaceTexture(json, textureName, "east", textureImage.getSubImage(scale, scale, scale, scale));
-        this.processFaceTexture(json, textureName, "west", textureImage.getSubImage(scale * 2, 0, scale, scale));
-    }
-
-    /**
-     * Generates new face textures.
-     *
-     * @param json The FSB JSON file.
-     * @param textureName The Name of Skybox Texture file.
-     * @param face The Name of Texture Face.
-     * @param texture The Texture Face file.
-     */
-    private void processFaceTexture(@NotNull JsonObject json, @NotNull String textureName, @NotNull String face, @NotNull BasicImage texture)
-    {
-        Identifier faceId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.png", FABRICSKYBOXES_PARENT, String.format("%s_%s", textureName, face)));
+        Identifier faceId = new Identifier(FABRICSKYBOXES_NAMESPACE, String.format("%s/%s.png", FABRICSKYBOXES_PARENT, textureName));
         if (!this.cached.containsKey(faceId))
-            this.cached.put(faceId, texture.getBytes());
-        json.addProperty(face, faceId.toString());
+            this.cached.put(faceId, textureImage.getBytes());
+        json.addProperty("texture", faceId.toString());
     }
 
     /**

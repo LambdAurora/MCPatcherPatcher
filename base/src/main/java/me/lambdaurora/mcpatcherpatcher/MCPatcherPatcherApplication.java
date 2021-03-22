@@ -176,6 +176,9 @@ public class MCPatcherPatcherApplication extends JFrame
                     System.out.println("Converted " + resourcePack.getName());
                 });
             }).start();
+
+            //Yeet, FS gets mad if I don't
+            validResourcePacks.clear();
         });
     }
 
