@@ -271,7 +271,7 @@ public class SkyConverter extends Converter implements Closeable
         json.add("rotation", rotation);
 
         if (properties.containsKey("speed")) {
-            json.addProperty("transitionSpeed", Float.parseFloat(properties.getProperty("speed")));
+            json.addProperty("rotationSpeed", Float.parseFloat(properties.getProperty("speed")));
         }
     }
 
